@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .tab-top-send{
+      border: #2aabd2 solid 1px;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs nav-justified tab-top" role="tablist">
+      <li role="presentation" class="active"><a href="#ReidsMess" aria-controls="ReidsMess" role="tab" data-toggle="tab">Redis信息查询</a></li>
+      <li role="presentation"><a href="#ReidseExc" aria-controls="ReidseExc" role="tab" data-toggle="tab">Redis命令执行</a></li>
+      {% if role_name == 'admin' %}
+      <li role="presentation"><a href="#Redismage" aria-controls="Redismage" role="tab" data-toggle="tab">Redis集群管理</a></li>
+      {% endif %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="ReidsMess">
+        <table class="table table-bordered table-hover table-condensed text-center">
+          <thead class="bg-info">
+            <tr>
+              <td>Redis集群名称</td>
+              <td>集群类型</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="ReidseExc">
+          <div class="alert alert-danger alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>警告</strong> 您执行的每条命令以及产生结果都会被记录下来，请慎重执行命令，每次发送只能执行一条命令，如果产生结果过多只会输出显示20条请谅解
+          </div>
+          <div class="tab-top-send bg-info">
+            <form class="form-horizontal">
+              <div class="form-group">
+                  <label for="redis-cluster-name" class="col-sm-2 control-label modal_label">选择redis集群</label>
+                  <div class="col-sm-4">
+                      <select class="form-control" id="redis-cluster-name">
+                      </select>
+                  </div>
+                  <label for="redis-cluster-db" class="col-sm-1 control-label modal_label">选择db</label>
+                  <div class="col-sm-2 input-group">
+                      <select class="form-control" id="redis-cluster-db">
+                      </select>
+                      <span class="input-group-btn">
+                          <button class="btn btn-info" type="button" id="query-ip-btn">查看IP</button>
+                      </span>
+                  </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group col-sm-offset-1 col-sm-10" >
+                    <textarea  class="form-control" rows="10" id="redis-exec-com"
+                               placeholder='每次只能输入一条命令具体用法如下：
+                               ①SET;XXXX;10;EX;60
+                               ②SET;XXXX;AB  CD  中国;EX;60
+                               ③SET;XXXX;{"abc":1};EX;60
+                               ④SET;XXXX;["ABC","CD"];EX;60
+                               ⑤GET;XXXX
+                               所有最外层需要加引号的字符串都不需要添加，
+                               后台会帮助添加，命令key value 参数都用;分隔'></textarea>
+                </div>
+              </div>
+              <div class="form-group" id="redis-com-commit-btn">
+                <div class="col-sm-offset-10 col-sm-1">
+                  <button type="button" class="btn btn-success">发送</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="redis-com-result" style="word-wrap:break-word">
+
+          </div>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="Redismage">
+        <div class="pull-right">
+         <button class="btn btn-primary " type="button" >
+            添加Redis集群信息
+          </button>
+        </div>
+        <table class="table table-bordered table-hover table-condensed text-center">
+          <thead class="bg-info">
+            <tr>
+              <td>Redis集群名称</td>
+              <td>部署方式</td>
+              <td>ip地址簇</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% include "md-modal.html" %}
+  {% include "sure_modal.html" %}
+  {% include "modal-md-close.html" %}
+  {% include "modal-min-close.html" %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#containerSettings").collapse('show');
+    //展示redis信息
+    $.ajax({
+        url:"{% url 'Opsys:AddRedisCluster' %}",
+        dataType: "json",
+        type: "GET",
+        async: false,
+        success:function (args) {
+            if(args.result){
+              var data = args.data;
+              $.each(args.data,function (i,v) {
+                  $("#Redismage table tbody").append(
+                      '<tr><td>'+ v['clustername']+'</td><td>'+ v['deploy_type']+'</td><td>'+v['ipaddr'].replace(/,/g,"<br>")+'</td><td><a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+                  )
+              })
+              $.each(data,function (i,v) {
+                  $("#ReidsMess tbody").append(
+                      '<tr><td>'+v['clustername']+'</td><td>'+v['deploy_type']+'</td><td><a class="fa fa-eye " aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+                  )
+              })
+            }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+            }
+        }
+    });
+    // 绑定Redis信息查询 中的查看信息信息的click托管事件
+    $("#ReidsMess table tbody").on("click","a.fa-eye",function () {
+        var clustername=$(this).parent().siblings().eq(0).text().trim();
+        $("#modal-md-close .modal-title").text(clustername+"信息");
+        $.ajax({
+            url:"{% url 'Opsys:QueryRedisMess' %}",
+            dataType: "json",
+            type: "GET",
+            data:{'clustername': clustername},
+            beforeSend:function () {
+                $("#modal-md-close .modal-body tbody").empty();
+                $("#modal-md-close .modal-body div").remove();
+                $("#modal-md-close .modal-body").append('<div class="loading01" ><div>');
+                $("#modal-md-close").modal('show');
+            },
+            success:function (args) {
+                if(args.result){
+                  $("#modal-md-close .modal-body div").remove();
+                  var total_mem = parseInt(args.redis_memory['memory_total']) == 0 ? "集群内存没做限制":args.redis_memory['memory_total']/1024/1024/1024
+                  $("#modal-md-close .modal-body tbody").append(
+                      '<tr><td>Redis集群名</td><td>'+ args.redis_mess['clustername']+'</td></tr>'+
+                      '<tr><td>部署模式</td><td>'+ args.redis_mess['deploy_type']+'</td></tr>'+
+                      '<tr><td>Redis版本</td><td>'+args.redis_mess['version']+'</td></tr>'+
+                      '<tr><td>部署路径</td><td>'+args.redis_mess['base_path']+'</td></tr>'+
+                      '<tr><td>集群内存总量(GB)</td><td>'+ total_mem +'</td></tr>'+
+                      '<tr><td>集群已使用内存(GB)</td><td>'+ args.redis_memory['memory_used']/1024/1024/1024 +'</td></tr>'+
+                      '<tr><td>集群分组编号</td><td>IP地址</td><td>端口</td><td>主从状态</td></tr>'
+                  );
+                  var color = ['#FFB6C1','#FF00FF','#6495ED','#F0F8FF','#00FA9A','#98FB98','#FFDEAD']
+                  console.log(args.redis_nodes)
+                  $.each(args.redis_nodes,function (i,v) {
+                      $.each(v,function (j,iv) {
+                           $("#modal-md-close .modal-body tbody").append(
+                            '<tr bgcolor='+color[i]+'><td rowspan="'+v.length+'">'+i+'</td><td>'+ iv['host']+'</td><td>'+iv['port']+'</td><td>'+iv['flags']+'</td><tr>'
+                            );
+                      })
+                  });
+                }else {
+                  var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                  $(location).prop('href',url);
+                }
+            }
+        })
+        $("#modal-md-close").modal('show');
+    });
+    // 绑定添加redis集群信息的click 事件
+    $("#Redismage button").click(function () {
+        $("#md-modal .modal-title").text("添加redis集群信息");
+        $("#md-modal .modal-body").empty().append(
+            '<form class="form-horizontal">\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="clusername" class="col-sm-4 control-label modal_label">输入Redis集群名</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="clusername" placeholder="输入Redis集群名">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="deploy-type" class="col-sm-4 control-label modal_label">部署类型</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <select class="form-control" id="deploy-type">\n'+
+            '         <option>Standone</option>\n'+
+            '         <option>Master-slave</option>\n'+
+            '         <option>Cluster</option>\n'+
+            '      </select>\n'+
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="ipaddr" class="col-sm-4 control-label modal_label">ip地址</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="ipaddr" placeholder="输入ip地址(多地址,分割)">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="base-path" class="col-sm-4 control-label modal_label">服务部署基目录</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="base-path" placeholder="输入部署目录">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="version" class="col-sm-4 control-label modal_label">版本号</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="version" placeholder="输入版本号">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '</form>'
+        );
+        $("#md-modal").modal('show');
+        //绑定添加redis集群信息modal btn 的click事件
+        $("#md-modal .modal-footer button").last().off();
+        $("#md-modal .modal-footer button").last().click(function () {
+            var redisclustername = $("#clusername").val();
+            var deploy_type = $("#deploy-type").val();
+            var ipaddr = $("#ipaddr").val();
+            var base_path=$("#base-path").val();
+            var version=$("#version").val();
+            $.ajax({
+                url:"{% url 'Opsys:AddRedisCluster' %}",
+                dataType: "json",
+                type: "POST",
+                data: {"redisclustername": redisclustername, "deploy_type": deploy_type, "ipaddr": ipaddr, "base_path": base_path, "version": version},
+                success:function (args) {
+                    if(args.result){
+                      window.location.reload();
+                    }else {
+                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                        $(location).prop('href',url);
+                    }
+                }
+            })
+        })
+        });
+    //绑定redis 管理编辑按钮的托管事件
+    $("#Redismage table tbody").on('click','a.fa-pencil-square-o',function () {
+        var clustername = $(this).parent().siblings().eq(0).text();
+        $("#md-modal .modal-footer button").last().off();
+        $("#md-modal .modal-title").text("Redis信息修改");
+        $("#md-modal .modal-body").empty();
+        $.ajax({
+            url:"{% url 'Opsys:AddRedisCluster' %}",
+            dataType:"json",
+            type:"GET",
+            data:{'clustername': clustername},
+            success:function (args) {
+                var data = args.data;
+                if(args.result){
+                    $("#md-modal .modal-body").append(
+                        '<form class="form-horizontal">\n' +
+                        '  <div class="form-group">\n' +
+                        '    <label for="clusername" class="col-sm-4 control-label modal_label">Redis集群名</label>\n' +
+                        '    <div class="col-sm-8">\n' +
+                        '      <input type="text" class="form-control" id="clusername" value="'+ data.clustername+'">' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '  <div class="form-group">\n' +
+                        '    <label for="ipaddr" class="col-sm-4 control-label modal_label">ip地址</label>\n' +
+                        '    <div class="col-sm-8">\n' +
+                        '      <input type="text" class="form-control" id="ipaddr" value="'+data.ipaddr+'">\n' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '  <div class="form-group">\n' +
+                        '    <label for="base-path" class="col-sm-4 control-label modal_label">服务部署基目录</label>\n' +
+                        '    <div class="col-sm-8">\n' +
+                        '      <input type="text" class="form-control" id="base-path" value="'+ data.base_path+'">\n' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '  <div class="form-group">\n' +
+                        '    <label for="version" class="col-sm-4 control-label modal_label">版本号</label>\n' +
+                        '    <div class="col-sm-8">\n' +
+                        '      <input type="text" class="form-control" id="version" value="'+ data.version+'">\n' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '</form>'
+                    );
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        });
+        $("#md-modal .modal-footer button").last().click(function () {
+            $.ajax({
+                url:"{% url 'Opsys:ModifyRedisCluster' %}",
+                dataType:"json",
+                type:"POST",
+                data:{'oldclustername':clustername, 'clustername':$("#clusername").val().trim(),'ipaddr':$("#ipaddr").val().trim(),'base_path':$("#base-path").val().trim(),'version':$("#version").val().trim()},
+                success:function (args) {
+                    if(args.result){
+                      window.location.reload();
+                    }else {
+                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                        $(location).prop('href',url);
+                    }
+                }
+            })
+        })
+
+        $("#md-modal").modal("show");
+    });
+    //绑定redis 管理删除按钮的托管事件
+    $("#Redismage table tbody").on('click', 'a.fa-window-close',function () {
+        var clustername = $(this).parent().siblings().eq(0).text();
+        $("#is-sure-model").modal('show');
+        $("#is-sure-model .modal-body h4").text("确认要删除"+clustername+'吗？')
+        $("#is-sure-model .modal-footer button").last().click(function () {
+            $.ajax({
+                url:"{% url 'Opsys:ModifyRedisCluster' %}",
+                dataType:"json",
+                type:"GET",
+                data:{'clustername':clustername},
+                success:function (args) {
+                    if(args.result){
+                       window.location.reload();
+                    }else{
+                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                        $(location).prop('href',url);
+                    }
+                }
+            })
+        })
+    });
+    // 执行命令tab 中填充redis集群名和地址
+    var redis_cluster_data;
+    $.ajax({
+        url:"{% url 'Opsys:RedisExcCom' %}",
+        type:"GET",
+        dataType: "json",
+        success:function (args) {
+            if(args.result){
+              // 赋值redis_cluster_data让其变成全局变量
+              redis_cluster_data = args.data;
+              $.each(args.data,function (i,v) {
+                $("#redis-cluster-name").append(
+                    '<option>'+ v['cluster_name']+'</option>'
+                );
+                if (i === 0){
+                    $.each(v['db'],function (di,dv) {
+                        $("#redis-cluster-db").append(
+                            '<option>'+dv+'</option>'
+                        );
+                    })
+                }
+              });
+            }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+            }
+        }
+    });
+    // 绑定 选择redis集群时的change 事件
+    $("#redis-cluster-name").change(function () {
+        var cluster_name = $(this).val();
+        $.each(redis_cluster_data,function (i,v) {
+            if (v['cluster_name'] === cluster_name){
+                // 清除已存在db select
+                $("#redis-cluster-db").empty();
+                // 添加db
+                $.each(v['db'],function (di,dv) {
+                    $("#redis-cluster-db").append(
+                        '<option>'+ dv + '</option>'
+                    );
+                });
+            }
+        });
+    });
+    // 绑定查看ip btn click事件
+    $("#query-ip-btn").click(function () {
+        var cluster_name = $("#redis-cluster-name").val().trim();
+        $.each(redis_cluster_data,function (i,v) {
+            if(v['cluster_name'] == cluster_name){
+                // 添加一个modal显示ip地址
+                var ip_arr = v['ipaddr'].split(',');
+                $("#modal-md-close .modal-title").text("redis集群地址");
+                $("#modal-md-close .modal-body tbody").empty();
+                $("#modal-md-close .modal-body div").remove();
+                $.each(ip_arr,function (i,ipv) {
+                    $("#modal-md-close tbody").append(
+                        '<tr><td>'+i+'</td><td>'+ipv+'</td></tr>'
+                    );
+                });
+                $("#modal-md-close").modal("show");
+            }
+        });
+    });
+    // 绑定发送命令click事件
+    $("#redis-com-commit-btn button").click(function () {
+        var cluster_name = $("#redis-cluster-name").val().trim();
+        var ipaddr;
+        var db = $("#redis-cluster-db").val().trim();
+        var com = $("#redis-exec-com").val().trim();
+        $.each(redis_cluster_data,function (i,v) {
+            if(v['cluster_name'] == cluster_name){
+                ipaddr = v['ipaddr'];
+            }
+        });
+        $.ajax({
+            url:"{% url 'Opsys:RedisExcCom' %}",
+            type: "POST",
+            dataType: "json",
+            data:{"ipaddr": ipaddr,"com":com,"db": db},
+            beforeSend:function () {
+                $("#modal-min-close .modal-title").text("");
+                $("#modal-min-close .modal-body").empty();
+                $("#modal-min-close .modal-body").append('<div class="loading01" ><div>');
+                $("#modal-min-close").modal('show');
+            },
+            success:function (args) {
+                $("#modal-min-close").modal('hide');
+                $(".redis-com-result").html('<p class="bg-primary">返回结果：</p>'+JSON.stringify(args));
+            }
+        });
+    });
+  </script>
+{% endblock %}

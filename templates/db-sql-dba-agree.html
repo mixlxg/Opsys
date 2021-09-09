@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 20px;
+    }
+    td{
+      display:table-cell;
+      vertical-align:middle !important;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'db-sql-apply-top.html' %}
+  <div>
+    <table class="table table-bordered table-condensed table-hover tab-top text-center" id="group-leader-agree-mess">
+      <thead class="bg-danger">
+        <tr>
+          <td>ID</td>
+          <td>申请原因</td>
+          <td>申请人</td>
+          <td>申请时间</td>
+          <td>SQL语句</td>
+          <td>
+            <i class="fa fa-cogs" aria-hidden="true"></i>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  {% include 'modal-md-close.html' %}
+  {% include 'md-modal.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+  $("#dbsqlpowerapply").collapse('show');
+  $("#db-sql-dba-agree").addClass('active');
+  // 定义一个零时变量用于存放数据
+  var data;
+  // 创建生成表格的函数
+  function createTable(mes){
+      var tr_mess = '<tr><td>'+ mes['id']+'</td><td>'+mes['apply_reson']+'</td><td>'+mes['username']+'</td><td>'+mes['apply_time']+'</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td><button type="button" class="btn btn-success btn-xs">同意</button>&nbsp;<button type="button" class="btn btn-warning btn-xs">dba执行</button>&nbsp;<button type="button" class="btn btn-danger btn-xs">不同意</button></td></tr>';
+      return tr_mess
+  }
+  // 获取所有的需要审批的sql工单数据
+  $.ajax({
+      url:"{% url 'Opsys:SqlDbaApprove' %}",
+      type: "GET",
+      datatype: "json",
+      async: false,
+      success:function (args) {
+        if (args.result){
+            data=args.data;
+        }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+        }
+      }
+  });
+  // 创建table数据
+  normalcreatetbody("group-leader-agree-mess",data,20,createTable);
+  //绑定审批按钮事件 同意或者不同意的按钮
+  $("#group-leader-agree-mess tbody").on('click', '.btn-success',function () {
+    var id = $(this).parent().siblings().eq(0).text().trim();
+    var method = $(this).text().trim();
+    $.ajax({
+        url:"{% url 'Opsys:SqlDbaApprove' %}",
+        type: "POST",
+        datatype: "json",
+        data: {'id': id, 'method': method, 'reason':''},
+        success:function (args) {
+            if(args.result){
+                window.location.reload();
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+  });
+  // 绑定dba执行按钮事件
+  $("#group-leader-agree-mess tbody").on('click', '.btn-warning',function (){
+    var id = $(this).parent().siblings().eq(0).text().trim();
+    var method = $(this).text().trim();
+    $("#md-modal .modal-title").text(method+'原因');
+    $("#md-modal .modal-body").empty();
+    $("#md-modal .modal-body").append(
+        '<div class="hide">'+id +'</div>'+
+        '<form class="form-horizontal">' +
+        '  <div class="form-group">' +
+        '    <label for="reason" class="col-sm-2 control-label">原因</label>' +
+        '    <div class="col-sm-10">' +
+        '      <textarea class="form-control" rows="3" id="reason"></textarea>' +
+        '    </div>' +
+        '  </div>' +
+        '</form>'
+    );
+    $("#md-modal").modal('show');
+  });
+  // 绑定不同意按钮事件
+  $("#group-leader-agree-mess tbody").on('click', '.btn-danger',function (){
+    var id = $(this).parent().siblings().eq(0).text().trim();
+    var method = $(this).text().trim();
+    $("#md-modal .modal-title").text(method+'原因');
+    $("#md-modal .modal-body").empty();
+    $("#md-modal .modal-body").append(
+        '<div class="hide">'+id +'</div>'+
+        '<form class="form-horizontal">' +
+        '  <div class="form-group">' +
+        '    <label for="reason" class="col-sm-2 control-label">原因</label>' +
+        '    <div class="col-sm-10">' +
+        '      <textarea class="form-control" rows="3" id="reason"></textarea>' +
+        '    </div>' +
+        '  </div>' +
+        '</form>'
+    );
+    $("#md-modal").modal('show');
+  });
+  // 绑定提交dba执行或不同意 modal中确定按钮事件
+  $("#md-modal .modal-footer .btn-primary").click(function () {
+    var id = $("#md-modal .modal-body .hide").text().trim();
+    var method = $("#md-modal .modal-title").text().replace(/原因/g,'');
+    var reason = $("#reason").val().trim();
+    $.ajax({
+        url:"{% url 'Opsys:SqlDbaApprove' %}",
+        type: "POST",
+        datatype: "json",
+        data:{'id':id,'method':method,'reason':reason},
+        success:function (args) {
+            if(args.result){
+                window.location.reload();
+            } else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+  });
+  // 绑定查看sql的 eye事件
+  $("#group-leader-agree-mess tbody").on('click', '.fa-eye',function () {
+    // 获取id信息
+    var id = $(this).parent().siblings().eq(0).text().trim();
+    $("#modal-md-close .modal-title").text("sql信息：");
+    $("#modal-md-close .modal-body tbody").empty();
+    $.each(data,function (i,mes) {
+        if(mes['id'] == id){
+            $("#modal-md-close .modal-body tbody").append(
+                '<tr><td>集群名称</td><td>'+mes['cluster_name']+'</td></tr>'+
+                '<tr><td>Schema</td><td>'+mes['schema_name'] +'</td><tr>'+
+                '<tr><td>Sql</td><td>'+mes['sql'].replace(/;/g,';<br>')+'</td><tr>'
+            );
+        }
+    });
+    $("#modal-md-close").modal('show');
+  });
+  </script>
+{% endblock %}

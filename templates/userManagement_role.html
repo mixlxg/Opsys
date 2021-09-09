@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block css %}
+  <style>
+      table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <button type="button" class="btn btn-success" style="margin-top: 50px">添加</button>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr class="info">
+        <th>id</th>
+        <th>角色名</th>
+        <th><i class="fa fa-wrench" aria-hidden="true"></i></th>
+      </tr>
+    </thead>
+    <tbody id="role_tbody">
+    {% for role_obj in data %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ role_obj.name }}</td>
+        <td><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {{ page_str|safe }}
+  {% include 'alert_modal.html' %}
+  <div class="modal fade " tabindex="-1" role="dialog" id="role-add-model">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">添加角色</h4>
+        </div>
+        <div class="modal-body text-center" >
+          <form class="form-horizontal" id="role-form">
+            <div class="form-group">
+              <label for="role-name" class="col-sm-3 control-label" style="font-weight: normal">角色名</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="role-name" name="role_name" placeholder="输入角色">
+              </div>
+              <div class="col-sm-offset-2 col-sm-8 text-center">
+                <span id="error_mess"></span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-default" id="role-add-sure-btn">确认</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#systemSetting").collapse('show');
+    $("button.btn-success").click(function () {
+        $("#error_mess").removeClass("glyphicon glyphicon-asterisk").text("")
+        $("#role-add-model").modal('show');
+    });
+    $("#role-add-sure-btn").click(function () {
+        var role_name=$("#role-name").val();
+        if(role_name){
+            $.ajax({
+                url:"{% url 'Opsys:usermanagementRole' %}",
+                dataType: "json",
+                type: "POST",
+                data: $("#role-form").serialize(),
+                success: function (args) {
+                    if(args.result){
+                        window.location.reload();
+                    }else {
+                        $("#error_mess").addClass("glyphicon glyphicon-asterisk").css("color","red").text(args.error_mess);
+                    }
+                }
+            })
+        }else {
+            $("#error_mess").addClass("glyphicon glyphicon-asterisk").css("color","red").text("角色名不能为空");
+        }
+    });
+    $("#role_tbody").on('click','a.fa-window-close',function () {
+        var role_name=$(this).parent().siblings().get(1).innerText;
+        $.ajax({
+            url:"{% url 'Opsys:roleDelete' %}",
+            dataType:"json",
+            type:"POST",
+            data:{"name":role_name},
+            success:function (args) {
+                if(args.result){
+                    console.log(args);
+                    window.location.reload();
+                }else {
+                    var user=''
+                    $.each(args.data,function (i,v) {
+                        user=user+","+v
+                    })
+                    $("#alert_erorr_content").text(role_name+"角色下还有："+user.substring(1,user.length)+"用户，不能删除");
+                    $("#alert-model").modal('show');
+                }
+            }
+        })
+    })
+
+  </script>
+{% endblock %}

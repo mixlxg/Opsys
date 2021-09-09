@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+{% load numberToChina %}
+{% block css %}
+  <style>
+    .select_top{
+      margin-top: 80px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  .user_select {
+    width: 120px !important;
+  }
+  .modal_label{
+    font-weight: normal !important;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "userManagement_top_navbar.html" %}
+  <div>
+    <div class="select_top">
+      <form class="form-inline">
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="button">选择角色</button>
+            </span>
+            <select class="form-control user_select" id="role_select" >
+              <option>请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button class="btn btn-success"  type="button" >选择用户</button>
+            </span>
+            <select class="form-control user_select" id="user_select">
+              <option>请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4 pull-right">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="输入用户名">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="button" id="btn_select_user">查询</button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+      {% if error_mes != False %}
+        <div class="alert alert-danger" role="alert">
+          <p>{{ error_mes }}</p>
+        </div>
+      {% else %}
+        <div>
+          <table class="table table-bordered table-hover">
+          <thead class="bg-warning">
+            <tr>
+              <th class="text-center">用户名</th>
+              <th class="text-center">用户别名</th>
+              <th class="text-center">邮箱</th>
+              <th class="text-center">是否superuser</th>
+              <th class="text-center">是否锁定</th>
+              <th class="text-center">所属角色</th>
+              <th class="text-center"><i class="fa fa-wrench" aria-hidden="true"></i></th>
+          </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for item in data %}
+              <tr>
+                <td>{{ item.username }}</td>
+                <td>{{ item.first_name }}</td>
+                <td>{{ item.email }}</td>
+                <td>{% numberToChina item.is_superuser 1 '是' %}</td>
+                <td>{% numberToChina item.is_active 1 '否' %}</td>
+                <td>{{ item.role__name }}</td>
+                <td>
+                  <a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a>
+                  <a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ page_str|safe }}
+        </div>
+      {% endif %}
+  </div>
+  <div class="modal fade text-center" tabindex="-1" role="dialog" id="eith_model">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">用户管理</h4>
+        </div>
+        <div class="modal-body " style="margin-right: 40px;">
+          <div class="row">
+            <form class="form-horizontal" id="form_modal_user">
+              <div class="form-group form-group-sm">
+                <label for="username" class="col-sm-2 control-label modal_label" >用户</label>
+                <div class="col-sm-4">
+                  <input type="text" class="form-control" id="username" name="username"  readonly>
+                </div>
+                <label for="email" class="col-sm-2 control-label modal_label">邮箱</label>
+                <div class="col-sm-4">
+                  <input type="email" class="form-control" id="email" name="email" >
+                </div>
+              </div>
+              <div class="form-group form-group-sm">
+                <label for="passowrd" class="col-sm-2 control-label modal_label">密码</label>
+                <div class="col-sm-4">
+                  <input type="password" class="form-control" id="passowrd" name="password">
+                </div>
+                <label for="role" class="col-sm-2 control-label modal_label">角色</label>
+                <div class="col-sm-4">
+                  <select class="form-control" id="role" name="role">
+                  </select>
+                </div>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="col-sm-2 control-label modal_label">超级用户</label>
+                <div class="col-sm-3 radio">
+                  <label>
+                    <input type="radio" name="radio_is_superuser" value="1" >是
+                  </label>
+                  <label>
+                    <input type="radio" name="radio_is_superuser" value="0" >否
+                  </label>
+                </div>
+                <label  class="col-sm-2 col-sm-offset-1 control-label modal_label">锁定</label>
+                <div class="col-sm-3 radio">
+                  <label>
+                    <input type="radio" name="radio_is_active" value="0">是
+                  </label>
+                  <label>
+                    <input type="radio" name="radio_is_active" value="1">否
+                  </label>
+                </div>
+              </div>
+              <div class="form-group form-group-sm">
+                <label for="aliasname" class="col-sm-2 control-label modal_label">用户别名</label>
+                <div class="col-sm-4">
+                  <input type="text" class="form-control" id="aliasname" name="aliasname">
+                </div>
+              </div>
+              <div class="col-sm-offset-2 col-sm-8 text-center">
+                <span id="error_mess"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="button_commit">保存</button>
+        </div>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+  </div>
+  {% include 'sure_modal.html' %}
+  <div class="modal fade " tabindex="-1" role="dialog" id="error-model">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header alert alert-warning">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">警告提示</h4>
+        </div>
+        <div class="modal-body text-center" >
+          <h4 id="alert_erorr_content"></h4>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#systemSetting").collapse('show');
+    $("#usermanagement_manage").addClass("active")
+    function createtablehtml(mes,data){
+        $("table tbody").empty();
+        var per_page_num=10;
+        if (data.length >per_page_num ){
+            if ($('[aria-label="Page navigation"]').find("ul").length !=0){
+                $('[aria-label="Page navigation"]').children("ul").empty()
+            }else {
+                $("table").parent().append('<nav aria-label="Page navigation" class="text-center"><ul></ul></nav>')
+            }
+            $.each(data.slice(0,per_page_num),function (user_i,user_v) {
+                 $("table tbody").append(
+                  "<tr><td>"+user_v.username+"</td><td>"+user_v.first_name+"</td><td>"+user_v.email+"</td>"+"<td>"+user_v.is_superuser+"</td>"+"<td>"+user_v.is_active+"</td>"+"<td>"+user_v.role_name+"</td><td>" +
+                  "<a class=\"fa fa-pencil-square-o text-info\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+                  " <a class=\"fa fa-window-close  text-danger\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+                  " </td></tr>")
+            });
+            var options = {
+              bootstrapMajorVersion:3,
+              currentPage: 1,
+              totalPages: Math.ceil(data.length/per_page_num),
+              numberOfPages:7,
+              size:"normal",
+              itemTexts: function (type, page, current) {
+                        switch (type) {
+                        case "first":
+                            return "首页";
+                        case "prev":
+                            return "上一页";
+                        case "next":
+                            return "下一页";
+                        case "last":
+                            return "尾页";
+                        case "page":
+                            return page;
+                        }
+                    },
+              onPageClicked:function (e,originalEvent,type,page) {
+                $("table tbody").empty();
+                $.each(data.slice((page-1)*per_page_num,page*per_page_num),function (user_i,user_v) {
+                  $("table tbody").append(
+                  "<tr><td>"+user_v.username+"</td><td>"+user_v.first_name+"</td><td>"+user_v.email+"</td>"+"<td>"+user_v.is_superuser+"</td>"+"<td>"+user_v.is_active+"</td>"+"<td>"+user_v.role_name+"</td><td>" +
+                  "<a class=\"fa fa-pencil-square-o text-info\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+                  " <a class=\"fa fa-window-close  text-danger\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+                  " </td></tr>")
+                 })
+              }
+             }
+            $('[aria-label="Page navigation"]').children("ul").bootstrapPaginator(options);
+        }else {
+            $('[aria-label="Page navigation"]').children("ul").empty()
+            $.each(data,function (user_i,user_v) {
+              $("table tbody").append(
+              "<tr><td>"+user_v.username+"</td><td>"+user_v.first_name+"</td><td>"+user_v.email+"</td>"+"<td>"+user_v.is_superuser+"</td>"+"<td>"+user_v.is_active+"</td>"+"<td>"+user_v.role_name+"</td><td>" +
+              "<a class=\"fa fa-pencil-square-o text-info\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+              " <a class=\"fa fa-window-close  text-danger\" aria-hidden=\"true\" href=\"jacascript:void(0)\"></a>" +
+              " </td></tr>")
+             })
+        }
+    }
+    $.ajax(
+        {
+            url:"{% url 'Opsys:roleQuery' %}",
+            type:"GET",
+            dataType:"json",
+            success:function (mes) {
+                if (mes.result == false){
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+                console.log(mes)
+                var role_select_obj = $("#role_select");
+                var user_select_obj = $("#user_select");
+                $.each(mes,function (k,v) {
+                    //初始化role user选择框
+                    role_select_obj.append("<option>"+k+"</option>");
+                    //初始化 user选择框
+                    $.each(v, function (i,user_v) {
+                        user_select_obj.append("<option>"+user_v.username+"</option>");
+                    })
+                });
+                role_select_obj.change(function () {
+                    var role_value = role_select_obj.val();
+                    user_select_obj.empty();
+                    if(role_value == "请选择"){
+                      user_select_obj.append("<option>请选择</option>");
+                     $.each(mes,function (k,v) {
+                          $.each(v,function (i,user_v) {
+                              user_select_obj.append("<option>"+user_v.username+"</option>");
+                          })
+                      })
+                    }else {
+                        user_select_obj.append("<option>请选择</option>");
+                        $.each(mes[role_value], function (user_i, user_v) {
+                            user_select_obj.append("<option>" + user_v.username + "</option>");
+                        });
+                        createtablehtml(mes,mes[role_value]);
+                    }
+                });
+                user_select_obj.change(function () {
+                   var user_value = user_select_obj.val();
+                   $.each(mes,function (k,v) {
+                        $.each(v,function (i,user_v) {
+                            if (user_v.username == user_value){
+                                createtablehtml(mes,[user_v]);
+                                return false;
+                            }
+                        })
+                    })
+                });
+               $("#btn_select_user").click(function () {
+                   var btn_select_user_value = $(this).parent().siblings("input").val();
+                   var select_res=[];
+                   $.each(mes,function (k,v) {
+                       $.each(v,function (i,user_v) {
+                           if (user_v.username.includes(btn_select_user_value)){
+                               select_res.push(user_v);
+                           }
+                       })
+                   });
+                    createtablehtml(mes,select_res);
+                })
+                $("table tbody").on("click","a.fa-pencil-square-o",function () {
+                    var mydata={};
+                    var td_obj=$(this).parent().siblings();
+                    mydata['username']=td_obj.get(0).innerText;
+                    mydata['first_name']=td_obj.get(1).innerText;
+                    mydata['email']=td_obj.get(2).innerText;
+                    mydata['is_superuser']=td_obj.get(3).innerText == '是'?1:0;
+                    mydata['is_active']=td_obj.get(4).innerText == '是' ?0:1;
+                    mydata['role']=td_obj.get(5).innerText
+                    //$("#eith_model").modal('show');
+                    //gei modal form 设置默认值
+                    $("#username").val(mydata.username);
+                    $("#aliasname").val(mydata.first_name)
+                    $("#email").val(mydata.email);
+                    $("#passowrd").val("");
+                    $("#role").empty();
+                    $.each(mes,function (k,v) {
+                        if(k == mydata.role){
+                          $("#role").append('<option selected>'+k+'</option>');
+                        }else {
+                          $("#role").append('<option>'+k+'</option>')
+                        }
+                    })
+                    $('[name="radio_is_superuser"]').each(function (i,k) {
+                        if (k.value == mydata.is_superuser){
+                            $('[name="radio_is_superuser"]')[i].checked=true;
+                        }
+                    })
+                    $('[name="radio_is_active"]').each(function (i,k) {
+                        if (k.value == mydata.is_active){
+                            $('[name="radio_is_active"]')[i].checked=true;
+                        }
+                    })
+                    $("#eith_model").modal('show');
+                })
+                $("table tbody").on("click","a.fa-window-close",function () {
+                    var td_obj=$(this).parent().siblings();
+                    var username = td_obj.get(0).innerText;
+                    $("#alert_content").text("确认删除用户"+username+"吗？");
+                    $("#is-sure-model").modal('show');
+                    $("#alert_sure").click(function () {
+                        $.ajax({
+                            url: "{% url 'Opsys:deleteUser' %}",
+                            dataType: "json",
+                            type: "POST",
+                            data: {'username':username},
+                            success: function (args) {
+                                if (args.result){
+                                    window.location.reload();
+                                }else {
+                                    $("#is-sure-model").modal('hide');
+                                    $("#alert_erorr_content").text("删除用户" + username + "失败");
+                                    $("#error-model").modal('show');
+                                }
+                            }
+                        })
+                    });
+                })
+                $("#button_commit").click(function () {
+                    $.ajax({
+                        url:"{% url 'Opsys:userModify' %}",
+                        dataType: "json",
+                        type: "POST",
+                        data: $("#form_modal_user").serialize(),
+                        success:function (args) {
+                            if (args.result){
+                                window.location.reload();
+                            }else {
+                                $('#error_mess').removeClass();
+                                $('#error_mess').addClass("glyphicon glyphicon-asterisk").css("color","red").text(args["error_mess"]);
+                            }
+                        }
+                    })
+                });
+            }
+        }
+    )
+  </script>
+{% endblock %}

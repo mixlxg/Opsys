@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .application-top-select{
+      border: #2aabd2 solid 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+  .modal_label{
+      font-weight: normal !important;
+      margin-left:-20px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include 'application-top.html' %}
+  <div>
+    <div class="col-md-12 application-top-select bg-primary">
+      <form class="form-horizontal">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label for="ipaddr" class="col-md-2 control-label modal_label">ip地址</label>
+            <div class="col-md-10">
+              <input type="text" class="form-control" id="ipaddr" name="ipaddr" placeholder="输入要部署机器ip地址，多个地址以,分割">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="service-name" class="col-md-4 control-label modal_label">应用名称</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="service-name" name="service-name" placeholder="输入应用名称">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="service-type" class="col-md-4 control-label modal_label">服务类型</label>
+            <div class="col-md-8">
+              <select class="form-control" id="service-type" name="service-type" >
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="service-port" class="col-md-4 control-label modal_label">分配服务端口</label>
+            <div class="col-md-8">
+              <select class="form-control" id="service-port" name="service-port" >
+                <option >否</option>
+                <option >是</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="jdk-version" class="col-md-4 control-label modal_label">jdk版本</label>
+            <div class="col-md-8">
+              <select  class="form-control" id="jdk-version" name="jdk-version" >
+                <option>jdk1.8</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="return-res-name" class="col-md-4 control-label modal_label">返回结果</label>
+            <div class="col-md-8">
+              <select class="form-control" id="return-res-name" name="return-res-name" >
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="project-class" class="col-md-4 control-label modal_label">项目所属</label>
+            <div class="col-md-8">
+              <select class="form-control" id="project-class" name="project-class" >
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8 col-md-offset-2" id="init_application">
+          <button type="button" class="btn btn-success btn-block">初始化应用</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+{% block script %}
+  <script>
+    $("#containerSettings").collapse('show');
+    $("#application-new-online").addClass("active");
+    // 初始化 头部选择框
+    $.ajax({
+        url:"{% url 'Opsys:ApplicationNewOnline' %}",
+        dataType: "json",
+        type:"GET",
+        success:function (args) {
+            if (args.result){
+                var top_data = args['data'];
+                //初始化服务类型 select
+                $.each(top_data['service_type'],function (i,v) {
+                    $("#service-type").append(
+                        "<option>"+v+"</option>"
+                    )
+                })
+                //初始化 返回结果select
+                $.each(top_data['username'],function (i,v) {
+                    $("#return-res-name").append(
+                        "<option>" + v +"</option>"
+                    )
+                })
+                // 初始化项目所属
+                $.each(top_data['project_class'],function (i,iv) {
+                    $("#project-class").append(
+                        '<option>' + iv +'</option>'
+                    );
+                })
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 判断是否有job
+    $.ajax({
+            url:"{% url 'Opsys:ApplicationNewOnlineQuery' %}",
+            dataType: "json",
+            type: "GET",
+            success:function (args) {
+                function check_result() {
+                    //查询任务接口返回结果
+                    $.ajax({
+                        url:"{% url 'Opsys:ApplicationNewOnlineQuery' %}",
+                        dataType: "json",
+                        type: "GET",
+                        success:function (args) {
+                            if(args.result){
+                                if(JSON.stringify(args['data'])=="{}"){
+                                    clearInterval(myclock);
+                                }else {
+                                  var data=args['data'];
+                                  $(".application-top-select").siblings().find('tbody').children().each(function () {
+                                      var current_obj = $(this);
+                                      var mip =current_obj.children().eq(2).text();
+                                      var service_name = current_obj.children().eq(1).text();
+                                      console.log(data)
+                                      $.each(data,function (job_id,v) {
+                                          $.each(v,function (i,iv) {
+                                              if(iv['ip']==mip && service_name==iv['service_name']){
+                                                  if(iv['status'] == 'FAILURE'){
+                                                      current_obj.children().eq(5).removeClass("loading02");
+                                                      current_obj.children().eq(5).text("失败");
+                                                      current_obj.children().eq(5).css("color","red");
+                                                  }else if (iv['status']=='SUCCESS'){
+                                                      current_obj.children().eq(5).removeClass("loading02");
+                                                      current_obj.children().eq(5).text("成功");
+                                                      current_obj.children().eq(5).css("color","green");
+                                                  }
+                                                  return false
+                                          }
+                                          })
+                                      })
+                                  })
+
+                                }
+                            }else {
+                              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                              $(location).prop('href',url);
+                            }
+                        }
+                    })
+                };
+                if (args.result){
+                    if(JSON.stringify(args.data) == "{}"){
+                        if(typeof myclock != "undefined" ? true : false){
+                            clearInterval(myclock);
+                         }
+                    }else {
+                        $(".application-top-select").parent().append(
+                            '<table class="table table-bordered table-condensed"><thead><tr><td>应用名</td><td>ip地址</td><td>应用类型</td><td>jdk版本</td><td>任务状态</td></tr></thead><tbody></tbody></table>'
+                        )
+                        var data = args.data;
+                        $.each(data,function (job_id,v) {
+                            $.each(v,function (i,iv) {
+                                if(iv['status'] == 'FAILURE'){
+                                    $(".application-top-select").siblings().find('tbody').append(
+                                      '<tr><td>'+iv['service_name']+'</td><td>'+iv['ip']+'</td><td>'+iv['service_type']+'</td><td>'+iv['jdk_version']+'</td><td style="color:red">失败</td></tr>'
+                                    )
+                                }else if(iv['status'] == 'SUCCESS'){
+                                    $(".application-top-select").siblings().find('tbody').append(
+                                      '<tr><td>'+iv['service_name']+'</td><td>'+iv['ip']+'</td><td>'+iv['service_type']+'</td><td>'+iv['jdk_version']+'</td><td style="color:green">成功</td></tr>'
+                                    )
+                                }else {
+                                    $(".application-top-select").siblings().find('tbody').append(
+                                      '<tr><td>'+iv['service_name']+'</td><td>'+iv['ip']+'</td><td>'+iv['service_type']+'</td><td>'+iv['jdk_version']+'</td><td class="loading02"></td></tr>'
+                                    )
+                                }
+                            })
+                        })
+                        myclock = setInterval(function () {
+                            check_result();
+                        },5000)
+                    }
+                }else {
+                   var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                   $(location).prop('href',url);
+                }
+            }
+        });
+    // 绑定初始化提交事件
+    $("#init_application button").click(function () {
+        if(typeof myclock != "undefined" ? true : false){
+            clearInterval(myclock);
+        }
+        var ip=$("#ipaddr").val();
+        var service_name=$("#service-name").val();
+        var service_type=$("#service-type").val();
+        var service_port=$("#service-port").val();
+        var jdk_version=$("#jdk-version").val();
+        var retrun_result_name=$("#return-res-name").val();
+        var project_class=$("#project-class").val();
+        //清理已存在的结果：
+        $(".application-top-select").siblings().remove();
+        //提交前端代码到后端获取结果
+        //console.log({'ip':ip,'service_name':service_name,'service_type':service_type,'service_port':service_port,'jdk_version':jdk_version,'retrun_result_name':retrun_result_name})
+        $.ajax({
+            url:"{% url 'Opsys:ApplicationNewOnline' %}",
+            dataType: "json",
+            type: "POST",
+            data:{'ip':ip,'service_name':service_name,'service_type':service_type,'service_port':service_port,'jdk_version':jdk_version,'retrun_result_name':retrun_result_name,'project_class':project_class},
+            beforeSend:function () {
+                var ip_arr=ip.split(',');
+                $(".application-top-select").parent().append(
+                    '<table class="table table-bordered table-condensed"><thead><tr><td>id</td><td>应用名</td><td>ip地址</td><td>应用类型</td><td>jdk版本</td><td>任务状态</td></tr></thead><tbody></tbody></table>'
+                )
+                $.each(ip_arr,function (i,v) {
+                    $(".application-top-select").parent().find("tbody").append(
+                        '<tr><td>'+(i+1)+'</td><td>'+service_name+'</td><td>'+v+'</td><td>'+service_type+'</td><td>'+jdk_version+'</td><td class="loading02"></td></tr>'
+                    )
+                })
+            },
+            success:function (args) {
+                function check_result(job_id) {
+                    //查询任务接口返回结果
+                    $.ajax({
+                        url:"{% url 'Opsys:ApplicationNewOnlineQuery' %}",
+                        dataType: "json",
+                        type: "GET",
+                        data: {'job_id':job_id},
+                        success:function (args) {
+                            if(args.result){
+                                if(JSON.stringify(args['data'])=="{}"){
+                                    clearInterval(myclock);
+                                }else {
+                                  var data=args['data'];
+                                  $(".application-top-select").siblings().find('tbody').children().each(function () {
+                                      var current_obj = $(this)
+                                      var mip =current_obj.children().eq(2).text();
+                                      var service_name = current_obj.children().eq(1).text();
+                                      console.log(data)
+                                      $.each(data,function (job_id,v) {
+                                          $.each(v,function (i,iv) {
+                                              if(iv['ip']==mip && service_name==iv['service_name']){
+                                                  if(iv['status'] == 'FAILURE'){
+                                                      current_obj.children().eq(5).removeClass("loading02");
+                                                      current_obj.children().eq(5).text("失败");
+                                                      current_obj.children().eq(5).css("color","red");
+                                                  }else if (iv['status']=='SUCCESS'){
+                                                      current_obj.children().eq(5).removeClass("loading02");
+                                                      current_obj.children().eq(5).text("成功");
+                                                      current_obj.children().eq(5).css("color","green");
+                                                  }
+                                                  return false
+                                          }
+                                          })
+                                      })
+                                  })
+
+                                }
+                            }else {
+                              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                              $(location).prop('href',url);
+                            }
+                        }
+                    })
+                };
+                if (args.result){
+                    myclock = setInterval(function () {
+                        check_result(args['job_id'])
+                    },5000)
+                }else {
+                   var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                   $(location).prop('href',url);
+                }
+            }
+        })
+       $("#ipaddr").val("");
+       $("#service-name").val("");
+    })
+  </script>
+
+{% endblock %}

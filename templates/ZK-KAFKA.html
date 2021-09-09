@@ -1,0 +1,657 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <div>
+    <!-- Nav tabs -->
+
+    <ul class="nav nav-tabs nav-justified tab-top" role="tablist">
+      <li role="presentation" class="active"><a href="#Kafka" aria-controls="Kafka" role="tab" data-toggle="tab">KAFKA查询</a></li>
+      <li role="presentation"><a href="#ZK" aria-controls="ZK" role="tab" data-toggle="tab">ZK查询</a></li>
+      {% if role_name == 'admin' %}
+      <li role="presentation"><a href="#zk-kafka" aria-controls="zk-kafka" role="tab" data-toggle="tab">ZK/KAFKA管理</a></li>
+      <li role="presentation"><a href="#zk-kafka-create-topic" aria-controls="zk-kafka-create-topic" role="tab" data-toggle="tab">创建Topic</a></li>
+      <li role="presentation"><a href="#zk-kafka-delete-topic" aria-controls="zk-kafka-delete-topic" role="tab" data-toggle="tab">删除Topic</a></li>
+      {% endif %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="Kafka">
+        <table class="table table-bordered table-hover table-condensed text-center" id="kafka-table">
+          <thead class="bg-info">
+            <tr>
+              <td>集群名称</td>
+              <td>ip地址簇</td>
+              <td>绑定zk集群名称</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="ZK">
+         <table class="table table-bordered table-hover table-condensed text-center" id="zk-table">
+          <thead class="bg-info">
+            <tr>
+              <td>集群名称</td>
+              <td>ip地址簇</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+         <tbody></tbody>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="zk-kafka">
+        <div class="dropdown pull-right">
+         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            添加集群信息
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="min-width:100%;">
+            <li><a href="jacascript:void(0)">kafka集群</a></li>
+            <li><a href="jacascript:void(0)">zk集群</a></li>
+          </ul>
+        </div>
+        <table class="table table-bordered table-hover table-condensed text-center" id="zk-kafka-table">
+          <thead class="bg-info">
+            <tr>
+              <td>集群名称</td>
+              <td>ip地址簇</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="zk-kafka-create-topic">
+        <div class="col-md-8 col-md-offset-2">
+          <h4 class="text-center text-primary">创建Topic</h4><hr>
+          <form class="from form-horizontal">
+            <div class="form-group">
+              <label for="kafka-name" class="col-sm-3 control-label">Kafka集群</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="kafka-name">
+
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="topic-name" class="col-sm-3 control-label">Topic名称</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="topic-name" placeholder="输入topic名称-分割">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="partions-num" class="col-sm-3 control-label">partions数</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="partions-num" placeholder="输入分区数量" >
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="replica-num" class="col-sm-3 control-label">副本数</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="replica-num" placeholder="请输入副本数">
+              </div>
+            </div>
+            <div class="col-sm-offset-3 col-sm-6 text-center">
+              <span id="mymess"></span>
+            </div>
+            <div class="form-group"><hr>
+              <div class="col-sm-offset-3 col-sm-6">
+                  <button type="button" class="btn btn-info btn-block" id="btn-create">创建</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="zk-kafka-delete-topic">
+        <div class="col-md-8 col-md-offset-2">
+          <h4 class="text-center text-primary">删除Topic</h4><hr>
+          <form class="from form-horizontal">
+            <div class="form-group">
+              <label for="kafka-name-del" class="col-sm-3 control-label">Kafka集群</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="kafka-name-del">
+
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="topic-name-del" class="col-sm-3 control-label">Topic名称</label>
+              <div class="col-sm-6">
+               <select class="form-control" id="topic-name-del">
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-offset-3 col-sm-6 text-center">
+              <span id="delete-topic-mymess"></span>
+            </div>
+            <div class="form-group"><hr>
+              <div class="col-sm-offset-3 col-sm-6">
+                  <button type="button" class="btn btn-info btn-block" id="btn-topic-del">删除</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'md-modal.html' %}
+  {% include 'sure_modal.html' %}
+  {% include 'alert_modal.html' %}
+  {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#containerSettings").collapse('show');
+    var data
+    //获取全部数据
+    $.ajax({
+        url:"{% url 'Opsys:ZkKafka' %}",
+        dataType: "json",
+        type: "GET",
+        async: false,
+        success:function (args) {
+            if(args.result){
+                delete(args['result']);
+                data = args;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    })
+    // 定义每个tab的分页函数
+    function kafka(k){
+        var tr = '<tr><td>'+k.clustername+'</td><td>'+k.ip+'</td><td>'+k.zk__clustername
+        +'</td><td><a class="fa fa-eye " aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+        return tr
+    }
+    function zk(k){
+        var tr = '<tr><td>'+k.clustername+'</td><td>'+k.ip+'</td><td><a class="fa fa-eye " aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+        return tr
+    }
+    function zk_kafka(k){
+        var tr = '<tr><td>'+k.clustername+'</td><td>'+k.ip+'</td><td><a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+        return tr
+    }
+    function createtable(mydata){
+        var kafka_data = mydata['kafka'];
+        var zk_data = mydata['zk'];
+        var zk_kafka_data = kafka_data.concat(zk_data);
+        $("#kafka-table tbody").empty();
+        $("#zk-table tbody").empty();
+        $("#zk-kafka-table tbody").empty();
+        normalcreatetbody('kafka-table',kafka_data,10,kafka);
+        normalcreatetbody('zk-table',zk_data,10,zk);
+        normalcreatetbody('zk-kafka-table',zk_kafka_data,10,zk_kafka);
+    }
+    //生成个tab的数据
+    createtable(data);
+    //生成ip:port 拼接字符串
+    function ip_port(ip,port){
+        var ip_arr=ip.split(',')
+        var ip_port_str=''
+        $.each(ip_arr,function (i,v) {
+            ip_port_str=ip_port_str + v +':'+ port +','
+        })
+        return ip_port_str.substring(0,ip_port_str.length-1)
+    }
+    // 将ip;port 分解为ip 和port
+    function split_ip_port(ip_port) {
+        var ip_port = ip_port;
+        var arr = ip_port.split(',')
+        var port='';
+        var ip_str='';
+        $.each(arr,function (i,v) {
+            if(i == arr.length-1){
+                port = v.split(':')[1];
+            }
+            ip_str = ip_str+v.split(':')[0]+','
+        })
+        return {"ip":ip_str.substring(0,ip_str.length -1),'port':port}
+    }
+    function get_one_cluster_data(clustername){
+        var cluster_type='';
+        var one_data;
+        $.each(data,function (k,v) {
+            $.each(data[k],function (i,iv) {
+                if(iv['clustername'] == clustername){
+                    cluster_type=k;
+                    one_data=iv;
+                }
+            })
+        });
+        return {'type':cluster_type,'one_data':one_data}
+    }
+    // 生成zk modal 函数的表单
+    function create_modal_zk(){
+        $("#md-modal .modal-title").text("添加ZK集群");
+        $("#md-modal .modal-body").empty();
+        $("#md-modal .modal-footer button").last().off('click');
+        $("#md-modal .modal-body").append(
+          '<form class="form-horizontal">\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="clusername" class="col-sm-4 control-label modal_label">输入集群名</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="clusername" placeholder="输入集群名">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="ipaddr" class="col-sm-4 control-label modal_label">ip地址</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="ipaddr" placeholder="输入ip地址(多地址,分割)">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="port" class="col-sm-4 control-label modal_label">服务端口</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="port" placeholder="输入服务端口号">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="base-path" class="col-sm-4 control-label modal_label">服务部署基目录</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="base-path" placeholder="输入部署目录">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="version" class="col-sm-4 control-label modal_label">版本号</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="version" placeholder="输入版本号">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '</form>'
+        );
+        $("#md-modal").modal('show');
+    }
+    //生成 kafka modal 函数
+    function create_modal_kafka(){
+        $("#md-modal .modal-title").text("添加KAFKA集群");
+        $("#md-modal .modal-body").empty();
+        $("#md-modal .modal-footer button").last().off('click');
+        $("#md-modal .modal-body").append(
+          '<form class="form-horizontal">\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="clusername" class="col-sm-4 control-label modal_label">输入集群名</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="clusername" placeholder="输入集群名">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="ipaddr" class="col-sm-4 control-label modal_label">ip地址</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="ipaddr" placeholder="输入ip地址(多地址,分割)">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="port" class="col-sm-4 control-label modal_label">服务端口</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="port" placeholder="输入服务端口号">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="base-path" class="col-sm-4 control-label modal_label">服务部署基目录</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="base-path" placeholder="输入部署目录">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="zkname" class="col-sm-4 control-label modal_label">选择ZK</label>\n' +
+            '    <div class="col-sm-8" id="zkname">\n' +
+            '      <select class="form-control">\n' +
+            '      </select>\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="form-group">\n' +
+            '    <label for="version" class="col-sm-4 control-label modal_label">版本号</label>\n' +
+            '    <div class="col-sm-8">\n' +
+            '      <input type="text" class="form-control" id="version" placeholder="输入版本号">\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '</form>'
+        );
+        //初始化select 框
+        $.each(data['zk'],function (i,k) {
+            $("#zkname select").append("<option>"+k.clustername+"</option>");
+        })
+        $("#md-modal").modal("show");
+    }
+
+    $("#zk-kafka .dropdown-menu a").eq(0).click(function () {
+        create_modal_kafka();
+        $("#md-modal .modal-footer button").last().click(function () {
+            var clustername = $("#clusername").val().trim();
+            var ip = $("#ipaddr").val().trim();
+            var port = $("#port").val().trim();
+            var base_path = $("#base-path").val().trim();
+            var zkname = $("#zkname select").val().trim();
+            var version = $("#version").val().trim();
+            $.ajax({
+                url:"{% url 'Opsys:ZkKafka' %}",
+                dataType:"json",
+                type:"POST",
+                data:{"post_type":'kafka','clustername':clustername,'ip':ip,'port':port,'base_path':base_path,'version':version,'zkname':zkname},
+                success:function (args) {
+                    if(args.result){
+                        data['kafka'].push({
+                            'base_path':base_path,
+                            'clustername':clustername,
+                            'ip':ip_port(ip,port),
+                            'version':version,
+                            'zk__clustername':zkname
+                        });
+                        createtable(data);
+                        $("#md-modal").modal("hide");
+                    }else {
+                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                        $(location).prop('href',url);
+                    }
+                }
+            })
+
+        });
+
+    });
+    $("#zk-kafka .dropdown-menu a").eq(1).click(function () {
+        create_modal_zk();
+        $("#md-modal .modal-footer button").last().click(function () {
+           var clustername = $("#clusername").val().trim();
+           var ip = $("#ipaddr").val().trim();
+           var port = $("#port").val().trim();
+           var base_path=$("#base-path").val().trim();
+           var version=$("#version").val().trim();
+           $.ajax({
+               url:"{% url 'Opsys:ZkKafka' %}",
+               dataType:"json",
+               type:"POST",
+               data:{'post_type':'zk','clustername':clustername,'ip':ip,'port':port,'base_path':base_path,'version':version},
+               success:function (args) {
+                   if(args.result){
+                      data['zk'].push({
+                          'base_path':base_path,
+                          'clustername':clustername,
+                          'ip':ip_port(ip,port),
+                          'version':version
+                      });
+                      createtable(data);
+                      $("#md-modal").modal('hide');
+                   }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                   }
+               }
+           })
+
+        })
+    });
+    $("#zk-kafka-table tbody").on('click','a.fa-pencil-square-o',function () {
+        var  clustername = $(this).parent().siblings().first().text().trim();
+        var one_data = get_one_cluster_data(clustername);
+        if (one_data['type'] == 'zk'){
+            create_modal_zk();
+
+        }else {
+            create_modal_kafka();
+            $("#zkname select").empty();
+            var zk_name=one_data["one_data"]["zk__clustername"]
+            $("#zkname select").append("<option>"+zk_name+"</option>");
+            $.each(data["zk"],function (i,k) {
+                if(k.clustername != zk_name){
+                    $("#zkname select").append("<option>"+k.clustername+"</option>");
+                }
+            })
+        }
+        $("#clusername").val(clustername);
+        $("#ipaddr").val(split_ip_port(one_data["one_data"]["ip"])["ip"]);
+        $("#port").val(split_ip_port(one_data["one_data"]["ip"])["port"]);
+        $("#base-path").val(one_data["one_data"]["base_path"]);
+        $("#version").val(one_data["one_data"]["version"]);
+        $("#md-modal .modal-footer .btn-primary").click(function () {
+            var n_clustername = $("#clusername").val().trim();
+            var n_ipaddr = $("#ipaddr").val().trim();
+            var n_port = $("#port").val().trim();
+            var n_base_path = $("#base-path").val().trim();
+            var n_version = $("#version").val().trim();
+            if (one_data['type'] == 'zk'){
+              var send_data={'clustername':n_clustername,'ip':ip_port(n_ipaddr,n_port),'base_path':n_base_path,'version':n_version,'type':'zk','old_clustername':one_data["one_data"]["clustername"]}
+            }else {
+              n_zk_name = $("#zkname select").val().trim();
+              var send_data={'clustername':n_clustername,'ip':ip_port(n_ipaddr,n_port),'base_path':n_base_path,'version':n_version,'type':'kafka','zk__clustername':n_zk_name,'old_clustername':one_data["one_data"]["clustername"]}
+            }
+            $.ajax({
+                url:"{% url 'Opsys:ZkKafkaUpdate' %}",
+                dataType:"json",
+                type:"POST",
+                data:send_data,
+                success:function (args) {
+                    if(args.result){
+                        window.location.reload();
+                    }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                    }
+                }
+            })
+        })
+    })
+    $("#zk-kafka-table tbody").on('click','a.fa-window-close',function () {
+        var clustername = $(this).parent().siblings().get(0).innerText.trim();
+        var current_one_data = get_one_cluster_data(clustername);
+        $("#is-sure-model .modal-body").text('确定要删除(' +clustername +')吗？');
+        $("#is-sure-model").modal('show');
+        $("#is-sure-model .modal-footer .btn-primary").click(function () {
+            var send_data={'clustername':clustername,'type':current_one_data['type']};
+            $.ajax({
+                url:"{% url 'Opsys:ZkKafkaDelete' %}",
+                dataType:"json",
+                type:"POST",
+                data:send_data,
+                success:function (args) {
+                    if(args.result){
+                      if(args.mess){
+                        var kafka_str=''
+                        $.each(args.res,function (i,v) {
+                            kafka_str=kafka_str+ v['clustername'] + ','
+                        });
+                        kafka_str.substring(0,kafka_str.length-1)
+                        $("#is-sure-model").modal('hide');
+                        $("#alert-model .modal-body").text("还有("+kafka_str+")在使用此zk");
+                        $('#alert-model').modal('show');
+                      }else {
+                          window.location.reload();
+                      }
+                    }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                    }
+                }
+            })
+        })
+
+    })
+    $("#zk-table tbody").on('click','a.fa-eye',function () {
+        var zk_clustername=$(this).parent().siblings().eq(0).text().trim();
+        var one_data=get_one_cluster_data(zk_clustername)
+        $("#modal-md-close .modal-header").text('('+zk_clustername+')集群信息')
+        $("#modal-md-close .modal-body tbody").empty().append(
+            '<tr><td>集群名称</td><td>'+one_data["one_data"]["clustername"]+'</td></tr>'+
+            '<tr><td>ip地址</td><td>'+ one_data["one_data"]["ip"]+'</td></tr>'+
+            '<tr><td>部署基目录</td><td>'+  one_data["one_data"]["base_path"]+'</td></tr>'+
+            '<tr><td>版本号</td><td>' +  one_data["one_data"]["version"]+'</td></tr>'
+        );
+        $("#modal-md-close").modal('show');
+    })
+    $("#kafka-table tbody").on('click','a.fa-eye',function () {
+        var clustername = $(this).parent().siblings().eq(0).text().trim();
+        var current_one_data = get_one_cluster_data(clustername);
+        var zk_one_data = get_one_cluster_data(current_one_data["one_data"]["zk__clustername"])
+        $("#modal-md-close .modal-header").text('('+clustername+')集群信息');
+        $.ajax({
+            url:"{% url 'Opsys:KafkaMess' %}",
+            dataType:"json",
+            type:"GET",
+            data:{'bootstrap_servers':current_one_data['one_data']['ip']},
+            beforeSend:function () {
+                $("#modal-md-close .modal-body tbody").empty();
+                $("#modal-md-close .modal-body").append('<div class="loading01" ><div>');
+                $("#modal-md-close").modal('show');
+            },
+            success:function (args) {
+                if(args.result){
+                  $("#modal-md-close .modal-body div").remove();
+                  $("#modal-md-close .modal-body tbody").append(
+                    '<tr><td>kafka集群名</td><td>'+current_one_data["one_data"]["clustername"]+'</td></tr>' +
+                    '<tr><td>kafka ip地址</td><td>' + current_one_data["one_data"]["ip"] + '</td></tr>' +
+                    '<tr><td>kafka部署base目录</td><td>' + current_one_data["one_data"]["base_path"]+'</td></tr>' +
+                    '<tr><td>version</td><td>'+current_one_data["one_data"]["version"] +'</td></tr>' +
+                    '<tr><td>使用zk名称</td><td>'+ current_one_data["one_data"]["zk__clustername"]+'</td></tr>'+
+                    '<tr><td>zk ip地址</td><td>' + zk_one_data["one_data"]["ip"] +'</td></tr>'
+                  );
+
+                  $.each(args['data'],function (i,v) {
+                      $("#modal-md-close .modal-body tbody").append(
+                          '<tr><td>topics编号'+i+'</td><td>'+v["topic_name"]+' (partions数:'+v["partions"]+',replicas数:'+v["replicas"]+')</td></tr>'
+                      )
+                  })
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+
+        })
+    })
+    //初始化创建topic tab的select
+    $.each(data['kafka'],function (i,v) {
+        $("#kafka-name").append('<option>'+v['clustername']+'</option>');
+    })
+    // 提交create topic
+    $("#btn-create").click(function () {
+        var kafka_name = $("#kafka-name").val();
+        var topic_name = $("#topic-name").val();
+        var partions_num = $("#partions-num").val();
+        var replica_num = $("#replica-num").val();
+        $.ajax({
+            url:"{% url 'Opsys:CreateTopic' %}",
+            dataType:"json",
+            type:"POST",
+            data: {"kafka_name":kafka_name,"topic_name":topic_name,"partions_num":partions_num,"replica_num":replica_num},
+            success:function (args) {
+                if(args.result){
+                  $("#mymess").text("topic创建成功");
+                  $("#mymess").css("color","green");
+                  $("#zk-kafka-create-topic form").get(0).reset();
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        })
+
+    })
+    // 初始化delete topic kafka集群名select
+    $.each(data['kafka'],function (i,v) {
+        $("#kafka-name-del").append('<option>'+v['clustername']+'</option>');
+    })
+   // 初始化delete topic topic名字的select
+   var kafa_name_del_init = $("#kafka-name-del").val();
+   $.each(data['kafka'],function (i,v) {
+       if(v['clustername']==kafa_name_del_init){
+           $.ajax({
+               url:"{% url 'Opsys:KafkaMess' %}",
+               dataType:"json",
+               type:"GET",
+               data:{"bootstrap_servers":v['ip']},
+               success:function (args) {
+                   if(args.result){
+                       $.each(args.data,function (i,v) {
+                           $("#topic-name-del").append(
+                               '<option>'+v.topic_name+'</option>'
+                           )
+                       })
+                   }else{
+                     var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                     $(location).prop('href',url);
+                   }
+               }
+           });
+           return false;
+       }
+   })
+  // 绑定 delete topic kafka 集群名select 的change事情
+  $("#kafka-name-del").change(function () {
+    var cluster_name = $(this).val()
+    $.each(data['kafka'],function (i,v) {
+       if(v['clustername']==cluster_name){
+           $.ajax({
+               url:"{% url 'Opsys:KafkaMess' %}",
+               dataType:"json",
+               type:"GET",
+               data:{"bootstrap_servers":v['ip']},
+               success:function (args) {
+                   if(args.result){
+                        $("#topic-name-del").empty();
+                       $.each(args.data,function (i,v) {
+                           $("#topic-name-del").append(
+                               '<option>'+v.topic_name+'</option>'
+                           )
+                       })
+                   }else{
+                     var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                     $(location).prop('href',url);
+                   }
+               }
+           });
+           return false;
+       }
+   })
+  })
+  $("#btn-topic-del").click(function () {
+      var cluster_name=$("#kafka-name-del").val();
+      var topic_name=$("#topic-name-del").val();
+     $.each(data['kafka'],function (i,v) {
+       if(v['clustername']==cluster_name){
+           $.ajax({
+               url:"{% url 'Opsys:DeleteTopic' %}",
+               dataType:"json",
+               type:"POST",
+               data:{"bootstrap_servers":v['ip'],"topic_name": topic_name},
+               success:function (args) {
+                   if(args.result){
+                      $("#topic-name-del").children().each(function () {
+                          var obj = $(this);
+                          if(obj.val() == topic_name){
+                            obj.remove();
+                          }
+                      });
+                      $("#delete-topic-mymess").text("删除topic："+topic_name+"成功").css("color","green");
+                   }else{
+                     var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                     $(location).prop('href',url);
+                   }
+               }
+           });
+           return false;
+       }
+   })
+  })
+  </script>
+{% endblock %}

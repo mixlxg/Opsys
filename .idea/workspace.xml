@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d7ef1df9-19e2-4a94-b447-9977e0efcf1d" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/Opsys$bizlog_control.coverage" NAME="bizlog_control Coverage Results" MODIFIED="1555644150126" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/script" />
+    <SUITE FILE_PATH="coverage/Opsys$tests.coverage" NAME="tests Coverage Results" MODIFIED="1556419258267" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/devopsApp" />
+    <SUITE FILE_PATH="coverage/Opsys$send_mail.coverage" NAME="send_mail Coverage Results" MODIFIED="1552379115155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/common/mySendMail" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="Django default" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="Django default" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="Django default" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="opsys: schema" type="ebfa3cd1:MariaImplModel$Schema" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="Opsys" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="CSS File" />
+        <option value="HTML File" />
+        <option value="Python Stub" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1QzO5TUL7t4Ilf6OGq1IuswOqVV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mariadb&#10;mysql" />
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="database.console.LAST_STATE" value="false" />
+    <property name="editor.config.ad.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/templates" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="terminal" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Opsys\templates" />
+      <recent name="D:\Opsys\script" />
+      <recent name="D:\Opsys\common\mySendMail" />
+      <recent name="D:\Opsys\common" />
+      <recent name="D:\Opsys\devopsApp\views" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Opsys\common" />
+      <recent name="D:\Opsys\Opsys" />
+      <recent name="D:\Opsys\Opsys\settings" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Django server.Opsys">
+    <configuration name="jn_to_wx_jenkins" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/script" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/script/jn_to_wx_jenkins.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="k8s_yaml_parse" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/common" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/common/k8s_yaml_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="send_mail" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/common/mySendMail" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/common/mySendMail/send_mail.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tests (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/interface" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/interface/tests.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tests" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/devopsApp" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/devopsApp/tests.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Opsys" type="Python.DjangoServer" factoryName="Django server">
+      <module name="Opsys" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DJANGO_SETTINGS_MODULE" value="Opsys.settings" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.tests" />
+        <item itemvalue="Python.k8s_yaml_parse" />
+        <item itemvalue="Python.jn_to_wx_jenkins" />
+        <item itemvalue="Python.tests (1)" />
+        <item itemvalue="Python.send_mail" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d7ef1df9-19e2-4a94-b447-9977e0efcf1d" name="Default Changelist" comment="" />
+      <created>1549937498380</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1549937498380</updated>
+      <workItem from="1549937500474" duration="1135000" />
+      <workItem from="1549938663109" duration="7265000" />
+      <workItem from="1549955454619" duration="6170000" />
+      <workItem from="1549961659508" duration="2448000" />
+      <workItem from="1549964143654" duration="134000" />
+      <workItem from="1549964422316" duration="2608000" />
+      <workItem from="1550021218425" duration="195000" />
+      <workItem from="1550021438109" duration="24529000" />
+      <workItem from="1551423996142" duration="862000" />
+      <workItem from="1551669280165" duration="23694000" />
+      <workItem from="1551854838189" duration="8039000" />
+      <workItem from="1551919350784" duration="8048000" />
+      <workItem from="1551928473998" duration="13440000" />
+      <workItem from="1552270117126" duration="16612000" />
+      <workItem from="1552353751649" duration="8642000" />
+      <workItem from="1552375484629" duration="6402000" />
+      <workItem from="1552438644484" duration="12430000" />
+      <workItem from="1552461055451" duration="6104000" />
+      <workItem from="1552526088775" duration="52421000" />
+      <workItem from="1552896541600" duration="8310000" />
+      <workItem from="1552906078058" duration="453000" />
+      <workItem from="1552906596854" duration="91083000" />
+      <workItem from="1553503813093" duration="9312000" />
+      <workItem from="1553761134608" duration="17748000" />
+      <workItem from="1554079867663" duration="23779000" />
+      <workItem from="1554173452211" duration="16418000" />
+      <workItem from="1554260311296" duration="4868000" />
+      <workItem from="1554343385067" duration="85484000" />
+      <workItem from="1554943664968" duration="18811000" />
+      <workItem from="1555294247309" duration="1456000" />
+      <workItem from="1555401745188" duration="16000" />
+      <workItem from="1555401843367" duration="6756000" />
+      <workItem from="1555638160373" duration="7250000" />
+      <workItem from="1556002792236" duration="29000" />
+      <workItem from="1556090429785" duration="1255000" />
+      <workItem from="1556093665088" duration="21358000" />
+      <workItem from="1556178116838" duration="12900000" />
+      <workItem from="1556251983956" duration="17812000" />
+      <workItem from="1556417602196" duration="2703000" />
+      <workItem from="1556420346613" duration="6657000" />
+      <workItem from="1556498796024" duration="50000" />
+      <workItem from="1556498900056" duration="42122000" />
+      <workItem from="1557019798258" duration="36137000" />
+      <workItem from="1557210020136" duration="3588000" />
+      <workItem from="1557276409113" duration="15495000" />
+      <workItem from="1557709177883" duration="14505000" />
+      <workItem from="1557884671310" duration="28087000" />
+      <workItem from="1558053955965" duration="22686000" />
+      <workItem from="1558314011842" duration="9806000" />
+      <workItem from="1558399514223" duration="9228000" />
+      <workItem from="1558508884367" duration="10286000" />
+      <workItem from="1558659102314" duration="2640000" />
+      <workItem from="1558664961387" duration="8622000" />
+      <workItem from="1558925908427" duration="2243000" />
+      <workItem from="1559005879591" duration="14504000" />
+      <workItem from="1559091096753" duration="6054000" />
+      <workItem from="1559114270134" duration="5828000" />
+      <workItem from="1559177856940" duration="16157000" />
+      <workItem from="1559523386547" duration="7569000" />
+      <workItem from="1559550141325" duration="5797000" />
+      <workItem from="1559618060011" duration="12654000" />
+      <workItem from="1560145541267" duration="2543000" />
+      <workItem from="1560905325339" duration="15651000" />
+      <workItem from="1561016631942" duration="16700000" />
+      <workItem from="1561359174251" duration="13059000" />
+      <workItem from="1561515285592" duration="43255000" />
+      <workItem from="1561942685241" duration="8662000" />
+      <workItem from="1563441346965" duration="1220000" />
+      <workItem from="1563785141282" duration="325000" />
+      <workItem from="1563850977053" duration="202000" />
+      <workItem from="1563954030197" duration="144000" />
+      <workItem from="1564023132854" duration="318000" />
+      <workItem from="1564367792574" duration="544000" />
+      <workItem from="1564456152671" duration="654000" />
+      <workItem from="1564622072963" duration="145000" />
+      <workItem from="1564636532925" duration="10000" />
+      <workItem from="1565246995147" duration="580000" />
+      <workItem from="1566980226944" duration="5396000" />
+      <workItem from="1567042926628" duration="16756000" />
+      <workItem from="1567125421404" duration="5283000" />
+      <workItem from="1567134569528" duration="11711000" />
+      <workItem from="1567392138996" duration="110991000" />
+      <workItem from="1568603108978" duration="23322000" />
+      <workItem from="1568769270675" duration="61000" />
+      <workItem from="1568769459391" duration="140000" />
+      <workItem from="1568769784364" duration="3296000" />
+      <workItem from="1568773765962" duration="306000" />
+      <workItem from="1568774099758" duration="16043000" />
+      <workItem from="1568949811101" duration="15551000" />
+      <workItem from="1569203228817" duration="36596000" />
+      <workItem from="1569550353118" duration="5345000" />
+      <workItem from="1569717477294" duration="30369000" />
+      <workItem from="1570503325505" duration="8084000" />
+      <workItem from="1570590804817" duration="6954000" />
+      <workItem from="1570674986217" duration="23789000" />
+      <workItem from="1570763812145" duration="8229000" />
+      <workItem from="1570866103708" duration="4459000" />
+      <workItem from="1571014233638" duration="84000" />
+      <workItem from="1571014857320" duration="54984000" />
+      <workItem from="1571304347010" duration="100000" />
+      <workItem from="1571801154467" duration="12767000" />
+      <workItem from="1571879123856" duration="21968000" />
+      <workItem from="1571967976433" duration="11041000" />
+      <workItem from="1572225693816" duration="36847000" />
+      <workItem from="1572403795509" duration="45200000" />
+      <workItem from="1572847348308" duration="2315000" />
+      <workItem from="1573178904877" duration="2018000" />
+      <workItem from="1574845297425" duration="758000" />
+      <workItem from="1574908412717" duration="7113000" />
+      <workItem from="1575014896251" duration="1377000" />
+      <workItem from="1575623950482" duration="1475000" />
+      <workItem from="1575881552547" duration="13000" />
+      <workItem from="1577102427326" duration="321000" />
+      <workItem from="1577102879630" duration="9000" />
+      <workItem from="1577102919778" duration="79000" />
+      <workItem from="1577103016150" duration="24000" />
+      <workItem from="1577149496933" duration="413000" />
+      <workItem from="1577149944752" duration="51000" />
+      <workItem from="1577150100112" duration="158000" />
+      <workItem from="1577150277168" duration="317000" />
+      <workItem from="1577150651607" duration="263000" />
+      <workItem from="1577150938167" duration="38000" />
+      <workItem from="1577240875917" duration="2907000" />
+      <workItem from="1577669855865" duration="667000" />
+      <workItem from="1577673482234" duration="734000" />
+      <workItem from="1577945599413" duration="115000" />
+      <workItem from="1578033072743" duration="340000" />
+      <workItem from="1578037189364" duration="763000" />
+      <workItem from="1578038221475" duration="5242000" />
+      <workItem from="1578294823394" duration="8219000" />
+      <workItem from="1578357225260" duration="23132000" />
+      <workItem from="1578533141422" duration="19747000" />
+      <workItem from="1578624441331" duration="60000" />
+      <workItem from="1578624525201" duration="7743000" />
+      <workItem from="1578875530989" duration="29795000" />
+      <workItem from="1579137810004" duration="36825000" />
+      <workItem from="1579412820806" duration="6440000" />
+      <workItem from="1581404019200" duration="1162000" />
+      <workItem from="1582507181433" duration="20225000" />
+      <workItem from="1582678857104" duration="16332000" />
+      <workItem from="1582768574543" duration="24365000" />
+      <workItem from="1583116269752" duration="4737000" />
+      <workItem from="1583743288057" duration="5000" />
+      <workItem from="1583743316255" duration="6000" />
+      <workItem from="1583906159936" duration="489000" />
+      <workItem from="1583976601770" duration="1031000" />
+      <workItem from="1583978579729" duration="8503000" />
+      <workItem from="1583994889268" duration="33750000" />
+      <workItem from="1584094338568" duration="904000" />
+      <workItem from="1584318730984" duration="106817000" />
+      <workItem from="1584927738966" duration="13828000" />
+      <workItem from="1585032493339" duration="11408000" />
+      <workItem from="1585119001821" duration="1077000" />
+      <workItem from="1585268032821" duration="4073000" />
+      <workItem from="1585451231362" duration="12540000" />
+      <workItem from="1585635526281" duration="17608000" />
+      <workItem from="1585805950183" duration="37433000" />
+      <workItem from="1586419323393" duration="41000" />
+      <workItem from="1586423915814" duration="2853000" />
+      <workItem from="1587438650993" duration="14768000" />
+      <workItem from="1587869609948" duration="6913000" />
+      <workItem from="1587970783915" duration="1665000" />
+      <workItem from="1588922035974" duration="2096000" />
+      <workItem from="1589274999848" duration="1607000" />
+      <workItem from="1589357907893" duration="5424000" />
+      <workItem from="1589382952503" duration="1221000" />
+      <workItem from="1589505389496" duration="11266000" />
+      <workItem from="1589769476251" duration="41507000" />
+      <workItem from="1589944906107" duration="9092000" />
+      <workItem from="1589975447477" duration="11411000" />
+      <workItem from="1590108131567" duration="15902000" />
+      <workItem from="1590371091487" duration="44280000" />
+      <workItem from="1590650934779" duration="23547000" />
+      <workItem from="1590969578914" duration="6845000" />
+      <workItem from="1591077131348" duration="13384000" />
+      <workItem from="1591149223301" duration="9695000" />
+      <workItem from="1591253630358" duration="6225000" />
+      <workItem from="1591318846965" duration="17778000" />
+      <workItem from="1591582810778" duration="5469000" />
+      <workItem from="1592376474597" duration="1308000" />
+      <workItem from="1593669013433" duration="2759000" />
+      <workItem from="1593743523949" duration="1616000" />
+      <workItem from="1594275584372" duration="4877000" />
+      <workItem from="1594690010202" duration="1182000" />
+      <workItem from="1594777581644" duration="3799000" />
+      <workItem from="1594796389252" duration="10000" />
+      <workItem from="1595405405665" duration="1442000" />
+      <workItem from="1595833984440" duration="677000" />
+      <workItem from="1595921924751" duration="28000" />
+      <workItem from="1596864003955" duration="27000" />
+      <workItem from="1597060848694" duration="9000" />
+      <workItem from="1597818850446" duration="1215000" />
+      <workItem from="1597922680189" duration="23000" />
+      <workItem from="1598323209610" duration="2556000" />
+      <workItem from="1598918778481" duration="1771000" />
+      <workItem from="1599010521140" duration="3547000" />
+      <workItem from="1599182792212" duration="55000" />
+      <workItem from="1599458612550" duration="5904000" />
+      <workItem from="1599465265906" duration="955000" />
+      <workItem from="1599468040506" duration="1390000" />
+      <workItem from="1599529796183" duration="6766000" />
+      <workItem from="1600062405730" duration="82000" />
+      <workItem from="1600235896465" duration="692000" />
+      <workItem from="1600239565081" duration="750000" />
+      <workItem from="1600341233420" duration="7000" />
+      <workItem from="1600851710452" duration="1367000" />
+      <workItem from="1601382174249" duration="737000" />
+      <workItem from="1604452500630" duration="2857000" />
+      <workItem from="1604474725381" duration="609000" />
+      <workItem from="1604645854764" duration="3286000" />
+      <workItem from="1604922455022" duration="27000" />
+      <workItem from="1606379942801" duration="236000" />
+      <workItem from="1607046173714" duration="5174000" />
+      <workItem from="1607073105916" duration="9000" />
+      <workItem from="1608100982433" duration="210000" />
+      <workItem from="1610930089398" duration="1462000" />
+      <workItem from="1612399336452" duration="2921000" />
+      <workItem from="1612680603585" duration="1621000" />
+      <workItem from="1614739963098" duration="8441000" />
+      <workItem from="1614819938793" duration="242000" />
+      <workItem from="1614837480117" duration="668000" />
+      <workItem from="1614842931928" duration="791000" />
+      <workItem from="1615515301799" duration="111000" />
+      <workItem from="1619417331191" duration="9499000" />
+      <workItem from="1620373082558" duration="1986000" />
+      <workItem from="1620637186723" duration="5017000" />
+      <workItem from="1621494835968" duration="688000" />
+      <workItem from="1621995567522" duration="2353000" />
+      <workItem from="1622008907155" duration="81000" />
+      <workItem from="1622098444131" duration="69000" />
+      <workItem from="1622624655711" duration="16000" />
+      <workItem from="1622859277532" duration="616000" />
+      <workItem from="1623976269924" duration="23000" />
+      <workItem from="1623984496966" duration="415000" />
+      <workItem from="1624436180190" duration="1696000" />
+      <workItem from="1624501215238" duration="39000" />
+      <workItem from="1624953281465" duration="2780000" />
+      <workItem from="1625191175560" duration="10700000" />
+      <workItem from="1625214205441" duration="3969000" />
+      <workItem from="1625453400621" duration="44000" />
+      <workItem from="1625454009192" duration="11066000" />
+      <workItem from="1625535316453" duration="5471000" />
+      <workItem from="1625625600960" duration="1043000" />
+      <workItem from="1625646992740" duration="355000" />
+      <workItem from="1629969624514" duration="632000" />
+      <workItem from="1630024598955" duration="17665000" />
+      <workItem from="1630289675751" duration="11100000" />
+      <workItem from="1630373517770" duration="9125000" />
+      <workItem from="1630461321193" duration="14677000" />
+      <workItem from="1630545499121" duration="32000" />
+      <workItem from="1630546071149" duration="758000" />
+      <workItem from="1630550661535" duration="3210000" />
+      <workItem from="1630976136337" duration="11301000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="413" y="111" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1625206905785">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="413" y="111" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1625206905785" />
+    <state x="2106" y="275" key="FileChooserDialogImpl" timestamp="1630551754885">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state x="2106" y="275" key="FileChooserDialogImpl/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1630551754885" />
+    <state width="1877" height="427" key="GridCell.Tab.0.bottom" timestamp="1631002928494">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1323" height="155" key="GridCell.Tab.0.bottom/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1630049121894" />
+    <state width="1877" height="427" key="GridCell.Tab.0.bottom/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1631002928494" />
+    <state width="1877" height="427" key="GridCell.Tab.0.center" timestamp="1631002928493">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1323" height="155" key="GridCell.Tab.0.center/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1630049121894" />
+    <state width="1877" height="427" key="GridCell.Tab.0.center/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1631002928493" />
+    <state width="1877" height="427" key="GridCell.Tab.0.left" timestamp="1631002928493">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1323" height="155" key="GridCell.Tab.0.left/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1630049121894" />
+    <state width="1877" height="427" key="GridCell.Tab.0.left/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1631002928493" />
+    <state width="1877" height="427" key="GridCell.Tab.0.right" timestamp="1631002928494">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1323" height="155" key="GridCell.Tab.0.right/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1630049121894" />
+    <state width="1877" height="427" key="GridCell.Tab.0.right/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1631002928494" />
+    <state x="1827" y="162" key="SettingsEditor" timestamp="1630551757804">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state x="1827" y="162" key="SettingsEditor/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1630551757804" />
+    <state x="1852" y="70" width="945" height="969" key="search.everywhere.popup" timestamp="1630312907532">
+      <screen x="1366" y="0" width="1920" height="1040" />
+    </state>
+    <state x="346" y="49" width="672" height="678" key="search.everywhere.popup/0.0.1366.728/1366.0.1920.1040@0.0.1366.728" timestamp="1625193735663" />
+    <state x="1852" y="70" width="945" height="969" key="search.everywhere.popup/0.0.1366.728/1366.0.1920.1040@1366.0.1920.1040" timestamp="1630312907532" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="django-line">
+          <url>file://$PROJECT_DIR$/templates/base_error.html</url>
+          <line>56</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="django-line">
+          <url>file://$PROJECT_DIR$/templates/base.html</url>
+          <line>30</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/interface/views.py</url>
+          <line>1</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/hostmanage.py</url>
+          <line>8</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/models.py</url>
+          <line>350</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/delploy.py</url>
+          <line>930</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/models.py</url>
+          <line>244</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/models.py</url>
+          <line>382</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/delploy.py</url>
+          <line>105</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/hostAuth.py</url>
+          <line>32</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/hostAuth.py</url>
+          <line>296</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/devopsApp/views/hostAuth.py</url>
+          <line>276</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Opsys$tests.coverage" NAME="tests Coverage Results" MODIFIED="1630306215629" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/devopsApp" />
+    <SUITE FILE_PATH="coverage/Opsys$tests__1_.coverage" NAME="tests (1) Coverage Results" MODIFIED="1582870831049" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/interface" />
+    <SUITE FILE_PATH="coverage/Opsys$jn_to_wx_jenkins.coverage" NAME="jn_to_wx_jenkins Coverage Results" MODIFIED="1607048675451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/script" />
+    <SUITE FILE_PATH="coverage/Opsys$send_mail.coverage" NAME="send_mail Coverage Results" MODIFIED="1559295104711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/common/mySendMail" />
+    <SUITE FILE_PATH="coverage/Opsys$k8s_yaml_parse.coverage" NAME="k8s_yaml_parse Coverage Results" MODIFIED="1625206748013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/common" />
+  </component>
+</project>

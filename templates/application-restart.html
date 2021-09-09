@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+ {% include 'loading.html' %}
+  <style>
+    .application-top-select{
+      border: #2aabd2 solid 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+      margin-left:-20px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  {% include 'application-top.html' %}
+  <div>
+    <div class="col-md-12 application-top-select bg-primary ">
+      <form class="form-horizontal">
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label modal_label" for="project—name">应用归属</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="project—name">
+
+              </select>
+             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label for="type" class="col-sm-3 control-label modal_label">应用名</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="appname">
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8 col-md-offset-3">
+          <button type="button" class="btn btn-success">查询应用</button>
+          <button type="button" class="btn btn-danger">停止应用</button>
+          <button type="button" class="btn btn-default">启动应用</button>
+          <button type="button" class="btn btn-warning">重启应用</button>
+        </div>
+      </form>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-div-runing"></div>
+  </div>
+{% endblock %}
+{% block script %}
+  <script>
+      $("#containerSettings").collapse('show');
+      $("#application-restart").addClass("active");
+      // 定义全局变量
+      var data;
+      var task_data;
+      var mylock;
+      // 定义一个 生产以及提交task的function
+      function commit_task_func(){
+          // 获取提交task的 执行状态数据
+          $.ajax({
+              url:"{% url 'Opsys:ApplicationRestartQuery' %}",
+              type: "GET",
+              dataType: "json",
+              async: false,
+              success:function (args) {
+                  console.log(args);
+                  console.log(task_data);
+                  if(args.result){
+                    if (task_data == undefined){
+                        task_data = args.data;
+                    }else if (JSON.stringify(args.data) !== '{}') {
+                        //获取数据
+                        $.each(args.data,function (k,v) {
+                            task_data[k]=v;
+                        });
+                        // 生成表格
+                        $(".tb-div-runing").empty();
+                        $(".tb-div-runing").append(
+                            '<table class="table table-bordered table-hover table-condensed text-center"><thead class="bg-info"><tr><td>应用名</td><td>ip地址</td><td>服务端口</td><td>操作类型</td><td>操作状态</td></tr></thead><tbody></tbody></table>'
+                        );
+                        $.each(task_data, function (k,v) {
+                            var mes = '<tr><td>'+v["service_name"]+'</td><td>'+v['ip']+'</td><td>'+v['service_port']+'</td><td>'+v['optype']+'</td>'
+                            if (v['status'] === 'SUCCESS' || v['status'] === 'FAILURE'){
+                                mes = mes + '<td>'+v['status']+'</td></tr>'
+                            }else {
+                                mes = mes + '<td class="loading03"></td></tr>'
+                            }
+                            $(".tb-div-runing table tbody").append(mes);
+                        });
+                    }
+                  }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                  }
+              }
+          });
+      }
+      // 刷新页面执行一次
+      commit_task_func();
+      //定时刷新
+      mylock = setInterval(commit_task_func,5000);
+      // 数据填充select
+      $.ajax({
+          url: "{% url 'Opsys:ApplicationRestart' %}",
+          type: "GET",
+          dataType: "json",
+          async: false,
+          success:function (args) {
+              if (args.result){
+                data = args.data;
+                $.each(args.pdata, function (i,v) {
+                    $("#project—name").append(
+                        '<option>'+v.project_name+'</option>'
+                    );
+                })
+              }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+              }
+          }
+      });
+      // 填充 应用 select
+      var current_project_name = $("#project—name").val().trim();
+      $.each(data, function (i,iv) {
+          if (iv.project_name__project_name.trim() === current_project_name){
+              $("#appname").append(
+                  '<option>'+ iv.service_name + '</option>'
+              );
+          }
+      });
+      // 应用归属select change
+      $("#project—name").change(function () {
+          current_project_name = $("#project—name").val().trim();
+          $("#appname").empty();
+          $.each(data, function (i,iv) {
+          if (iv.project_name__project_name.trim() === current_project_name){
+              $("#appname").append(
+                  '<option>'+ iv.service_name + '</option>'
+              );
+          }
+      });
+      });
+      // 定义一个生成具体信息的表格函数
+      function tbCreate(ty,tbarr){
+          $(".tb-div").empty();
+          $(".tb-div").append(
+            '<table class="table table-bordered table-hover table-condensed text-center"><thead class="bg-warning"><tr><td>ID</td><td>项目归属</td><td>应用名</td><td>ip地址</td><td>服务端口</td><td>状态</td><td><i class="fa fa-tasks" aria-hidden="true"></i></td></tr></thead><tbody></tbody></table>'
+          );
+          if (ty === "select"){
+            $.each(tbarr, function (i, iv) {
+                $(".tb-div table tbody").append(
+                    '<tr><td>'+(i+1)+'</td><td>'+iv.project_name__project_name+'</td><td>'+iv.service_name+'</td><td>'+iv.host__ip+'</td><td>'+iv.service_port+'</td><td>'+iv.status+'</td><td><button type="button" class="btn btn-danger btn-xs">停止</button> <button type="button" class="btn btn-primary btn-xs">启动</button> <button type="button" class="btn btn-warning btn-xs">重启</button></td></tr>'
+                );
+            });
+          }else {
+
+          }
+      };
+      // 应用节点信息查询
+      $("form button.btn-success").click(function () {
+          var service_name = $("#appname").val().trim();
+          $.ajax({
+              url: "{% url 'Opsys:ApplicationRestart' %}",
+              type: "GET",
+              dataType: "json",
+              data: {"service_name":service_name},
+              success: function (args) {
+                  if(args.result){
+                    tbCreate("select", args.data);
+                  }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                  }
+              }
+          });
+      });
+      // 重启click
+      $("form button.btn-warning").click(function () {
+         var service_name = $("#appname").val().trim();
+         $.ajax({
+             url:"{% url 'Opsys:ApplicationRestart' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'restart'},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+      // 停止按钮
+      $("form button.btn-danger").click(function () {
+          var service_name = $("#appname").val().trim();
+          $.ajax({
+             url:"{% url 'Opsys:ApplicationRestart' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'stop'},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+      // 启动按钮
+      $("form button.btn-default").click(function () {
+           var service_name = $("#appname").val().trim();
+           $.ajax({
+             url:"{% url 'Opsys:ApplicationRestart' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'start'},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+      // 绑定当个节点停止按钮
+      $(".tb-div").on("click","button.btn-danger",function () {
+          var obj = $(this).parent().parent();
+          var service_name = obj.children().eq(2).text().trim();
+          var service_port = obj.children().eq(4).text().trim();
+          var ip = obj.children().eq(3).text().trim();
+          $.ajax({
+             url:"{% url 'Opsys:ApplicationRestartOne' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'stop', 'ip': ip, 'service_port':service_port},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+      // 绑定单个节点启动按钮
+      $(".tb-div").on("click","button.btn-primary",function () {
+          var obj = $(this).parent().parent();
+          var service_name = obj.children().eq(2).text().trim();
+          var service_port = obj.children().eq(4).text().trim();
+          var ip = obj.children().eq(3).text().trim();
+          $.ajax({
+             url:"{% url 'Opsys:ApplicationRestartOne' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'start', 'ip': ip, 'service_port':service_port},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+      // 绑定单个节点重启按钮
+      $(".tb-div").on("click","button.btn-warning",function () {
+          var obj = $(this).parent().parent();
+          var service_name = obj.children().eq(2).text().trim();
+          var service_port = obj.children().eq(4).text().trim();
+          var ip = obj.children().eq(3).text().trim();
+          $.ajax({
+             url:"{% url 'Opsys:ApplicationRestartOne' %}",
+             type: "POST",
+             dataType: "json",
+             data: {"service_name": service_name, "optype": 'restart', 'ip': ip, 'service_port':service_port},
+             success: function (args) {
+                 if(args.result){
+                     commit_task_func();
+                 }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                 }
+             }
+         });
+      });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block css %}
+  {% include 'loading.html' %}
+{% endblock %}
+{% block content %}
+  <!-- loading -->
+  <button type="button" class="test">点击</button>
+  <table class="table table-bordered table-hover">
+    <tbody>
+    <tr bgcolor="green">
+      <td>test1</td>
+      <td>test1</td>
+      <td>test1</td>
+    </tr>
+    <tr bgcolor="#f0f8ff">
+      <td rowspan="2">test1</td>
+      <td>test1</td>
+      <td>test1</td>
+    </tr>
+    <tr bgcolor="#f0f8ff">
+      <td>test2</td>
+      <td>test2</td>
+    </tr>
+    </tbody>
+  </table>
+{% endblock %}
+{% block script %}
+  <script>
+
+  </script>
+{% endblock %}

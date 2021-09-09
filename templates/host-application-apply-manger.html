@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <link href="{% static 'plugin/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" media="screen">
+  <style>
+    .tab-top{
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .btn-margin {
+       margin-top: 5px;
+       margin-left: 5px;
+     }
+     .form-top{
+      border: #2aabd2 solid 1px;
+      margin-top: 100px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    .form-top1{
+      border: #2aabd2 solid 1px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+   <!-- Nav tabs -->
+  <ul class="nav nav-tabs tab-top" role="tablist">
+    <li role="presentation" class="active"><a href="#power-given" aria-controls="power-given" role="tab" data-toggle="tab">人工授权</a></li>
+    <li role="presentation"><a href="#special-power-given" aria-controls="special-power-given" role="tab" data-toggle="tab">特殊权限授予</a></li>
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active form-top bg-danger" id="power-given">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="start_time" class="col-md-2 control-label modal_label">开始时间</label>
+            <div class="input-group date form_datetime col-md-8" data-link-field="start_time" >
+              <input class="form-control" type="text" id="start_time" placeholder="必填">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="end_time" class="col-md-2 control-label modal_label">结束时间</label>
+            <div class="input-group date form_datetime col-md-8" data-link-field="end_time">
+              <input class="form-control" type="text" id="end_time" placeholder="必填">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+              <label for="username" class="col-sm-2 control-label modal_label">用户名</label>
+              <div class="col-sm-7">
+                  <select class="form-control" id="username">
+                  </select>
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="project_name" class="col-sm-2 control-label modal_label">项目归属</label>
+              <div class="col-sm-2">
+                  <select class="form-control" id="project_name">
+                  </select>
+              </div>
+              <label for="service_name" class="col-sm-2 control-label modal_label">添加服务</label>
+              <div class="col-sm-4">
+                  <div class="input-group">
+                    <select class="form-control" id="service_name">
+                    </select>
+                     <span class="input-group-btn">
+                        <button class="btn btn-info" type="button"><i class="glyphicon glyphicon-ok"></i></button>
+                    </span>
+                  </div>
+              </div>
+          </div>
+          <div class="form-group hide" id="my-hide-service-div">
+            <div class="alert alert-info  col-sm-offset-2 col-sm-7" role="alert">
+                <button type="button" class="close"  aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="service_name_btn">
+                </div>
+            </div>
+
+          </div>
+          <div class="form-group">
+            <label for="reason" class="col-md-2 control-label modal_label">申请原因</label>
+            <div class="input-group col-sm-8" >
+                <textarea  class="form-control" rows="2" id="reason" placeholder="必填"></textarea>
+            </div>
+          </div>
+          <div class="form-group" id="commit-btn">
+            <div class="col-sm-offset-4 col-sm-4">
+              <button type="button" class="btn btn-primary btn-block">授权</button>
+            </div>
+          </div>
+        </form>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="special-power-given">
+        <div class="col-md-4">
+           <button type="button" class="btn btn-warning btn-block" id="admin-power-flush">刷入admin权限</button>
+        </div>
+        <div class="col-md-offset-1 col-md-7">
+            <div class="form-top1 bg-warning">
+                <form class="form-horizontal">
+                  <div class="form-group">
+                      <label for="big-data-username" class="col-sm-2 control-label modal_label">用户名</label>
+                      <div class="col-sm-5">
+                          <select class="form-control" id="big-data-username">
+                          </select>
+                      </div>
+                      <div class="col-sm-4">
+                         <button type="button" class="btn btn-primary btn-block" id="big-data-btn">刷入大数据权限</button>
+                      </div>
+                  </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+  {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js'%}" charset="UTF-8"></script>
+  <script>
+    $("#hostpowerMange").collapse('show');
+    $('.form_datetime').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      startView: 2,
+      forceParse: 0,
+      showMeridian: 1,
+      format: 'yyyy-mm-dd hh:ss'
+      });
+    // 获取用户名信息
+    $.ajax({
+        url:"{% url 'Opsys:HostPowerApplyManager' %}",
+        type: "GET",
+        dataType: "json",
+        async: false,
+        success: function (args) {
+            if (args.result){
+                $.each(args.data,function (i, username) {
+                    $("#username").append(
+                        '<option>'+username +'</option>'
+                    );
+                    $("#big-data-username").append(
+                        '<option>' + username +'</option>'
+                    );
+                });
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 定义一个全局变量用于存放所有的服务信息
+    var service_data;
+    // 获取数据
+    $.ajax({
+        url: "{% url 'Opsys:HostPowerApply' %}",
+        type: "GET",
+        dataType: "json",
+        async: false,
+        success: function (args) {
+            if(args.result){
+                service_data = args.data;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 填充项目归属select
+    $.each(service_data,function (project_name,service_list) {
+        $("#project_name").append(
+            '<option>'+project_name+'</option>'
+        );
+    });
+    // 填充默认服务select
+    var project_name = $("#project_name").val().trim();
+    $.each(service_data[project_name],function (i,service_name) {
+        $("#service_name").append(
+            '<option>'+service_name+'</option>'
+        );
+    });
+    // 绑定project_name 的change事件
+    $("#project_name").change(function () {
+        var project_name = $("#project_name").val().trim();
+        $("#service_name").empty();
+        $.each(service_data[project_name],function (i,service_name) {
+            $("#service_name").append(
+                '<option>'+ service_name+'</option>'
+            );
+        });
+    });
+    // 绑定添加服务按钮click事件
+    $(".glyphicon-ok").parent().click(function () {
+        var service_name = $("#service_name").val().trim();
+        $("#my-hide-service-div").removeClass("hide");
+        $(".service_name_btn").append(
+            '<button type="button" class="btn btn-danger btn-xs btn-margin">'+service_name+'</button>'
+        );
+    });
+    // 绑定服务框里面的close 按钮 click事件
+    $("#my-hide-service-div .close").click(function () {
+        $(".service_name_btn").empty();
+        $("#my-hide-service-div").addClass("hide");
+    });
+    $("#commit-btn .btn-primary").click(function () {
+        // 获取开始时间数据
+        var start_time=$("#start_time").val().trim();
+        var end_time=$("#end_time").val().trim();
+        var reason = $("#reason").val().trim();
+        var username=$("#username").val().trim();
+        var service_arry = [];
+        $(".service_name_btn").children().each(function () {
+            service_arry.push($(this).text().trim());
+        });
+        if(start_time !== '' && end_time !== ''&& reason !=='' && service_arry.length !== 0){
+            // 调用授权接口直接赋予权限给用户，根据返回授权结果插入数据到申请表中记录查询
+            $.ajax({
+                    url:"{% url 'Opsys:HostPowerApi' %}",
+                    type: "POST",
+                    dataType: "json",
+                    data:{'data':JSON.stringify({'username':username,'service_name_list': service_arry,'start_time':start_time,'end_time':end_time})},
+                    success:function (args) {
+                        if (args.result){
+                            // 授权成功提交申请数据到申请表单中
+                            $.ajax({
+                                url: "{% url 'Opsys:HostPowerApplyManager' %}",
+                                type: "POST",
+                                dataType: "json",
+                                data: {'service_name':service_arry.join(','),'start_time':start_time,'end_time':end_time,'reason':reason,'username':username,'apply_result':JSON.stringify(args)},
+                                success: function (args) {
+                                    if (args.result){
+                                        // 清空开始时间input
+                                        $("#start_time").val('');
+                                        // 清空结束时间input
+                                        $("#end_time").val('');
+                                        // 清空服务名div里面的btn 并隐藏alert
+                                        $(".service_name_btn").empty();
+                                        $("#my-hide-service-div").addClass("hide");
+                                        //清空申请理由
+                                        $("#reason").val('');
+                                    }else {
+                                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                                        $(location).prop('href',url);
+                                    }
+                                }
+                            });
+                        }else {
+                            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                            $(location).prop('href',url);
+                        }
+                    }
+                });
+        }else {
+            $("#modal-min-close .modal-body").text("必填项不能为空，请重新填表单");
+            $("#modal-min-close").modal('show');
+        }
+    });
+    // 为刷入 admin角色权限按钮绑定事件
+    $("#admin-power-flush").click(function () {
+        $.ajax({
+            url:"{% url 'Opsys:HostPowerApi' %}",
+            type: "POST",
+            dataType: "json",
+            data:{'data':JSON.stringify({'flag': true})},
+            success:function (args) {
+                if(args.result){
+                    $("#modal-min-close .modal-body").text("刷新admin角色主机权限成功");
+                    $("#modal-min-close").modal('show');
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        });
+    });
+    // 赋权大数据权限按钮绑定事件
+    $("#big-data-btn").click(function () {
+        // 获取要授予大数据主机权限的用户
+        var big_data_username=$("#big-data-username").val().trim();
+        $.ajax({
+            url:"{% url 'Opsys:HostPowerApi' %}",
+            type: "POST",
+            dataType: "json",
+            data:{'data': JSON.stringify({'username': big_data_username,'special_flag': 'bigdata'})},
+            success:function (args) {
+                if(args.result){
+                    $("#modal-min-close .modal-body").text("授权"+big_data_username +"用户大数据主机权限成功");
+                    $("#modal-min-close").modal('show');
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        });
+    });
+
+  </script>
+{% endblock %}

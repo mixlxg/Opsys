@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+    <style>
+     table {
+         margin-top: 60px;
+     }
+    </style>
+{% endblock %}
+{% block content %}
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr  class="info">
+          <th>ID</th>
+          <th>项目名称</th>
+          <th><i class="fa fa-cogs"></i></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+{% endblock %}
+{% block script %}
+  <script>
+  $("#deploySettings").collapse('show');
+  // 获取全部正在发布的项目数据
+  $.ajax({
+      url: "{% url 'Opsys:DeployJenkinsLock' %}",
+      type: "GET",
+      datatype: "json",
+      success: function (args) {
+        if (args["result"]){
+            $.each(args['data'],function (index,value) {
+                $("table tbody").append(
+                  "<tr><td>"+ value['id']+"</td><td>"+value['deploy_project']+"</td><td><a class='fa fa-window-close text-danger' aria-hidden=\"true\" href='jacascript:void(0)'></a></td></tr>"
+                );
+            });
+        }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+        }
+      }
+  });
+  // 绑定删除按钮的click事件
+  $("table tbody").on("click","a.fa-window-close",function () {
+    // 获取id
+    var nid = $(this).parent().siblings().get(0).innerText.trim();
+    $.ajax({
+        url: "{% url 'Opsys:DeployJenkinsLock' %}",
+        type: "POST",
+        data: {"nid": nid},
+        datatype: "json",
+        success: function (args) {
+            if (args['result']){
+                // 删除成功重载页面
+                window.location.reload();
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+  });
+  </script>
+{% endblock %}

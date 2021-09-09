@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 20px;
+    }
+    td{
+      display:table-cell;
+      vertical-align:middle !important;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'deploy-apply-top.html' %}
+  <div>
+    <table class="table table-bordered table-hover tab-top text-center" id="sh-table">
+      <thead class="bg-success">
+        <tr>
+          <td>发布ID</td>
+          <td>需求说明</td>
+          <td>项目名</td>
+          <td>发布人员</td>
+          <td>上一级领导</td>
+          <td style="width: 140px;">
+            <select class="form-control need-date">
+              <option>选择日期</option>
+            </select>
+          </td>
+          <td style="width: 110px;">
+            <select class="form-control sh-status">
+              <option>待审批</option>
+              <option>已审批</option>
+            </select>
+          </td>
+          <td>
+            <i class="fa fa-cogs" aria-hidden="true"></i>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+  $("#deploySettings").collapse('show');
+  $("#deploy-app-top-groupleader-agree").addClass('active');
+  var data;
+  function createorder(kwargs) {
+      var mtr = '<tr><td>'+kwargs.id+'</td><td>'+kwargs.workorderneeds__need_content + '</td><td>'+kwargs.project_name+'</td><td>'+ kwargs.deploy_username + '</td>'
+      if(kwargs.groupleader_agree == ""){
+          mtr = mtr+'<td style="width: 110px;"><select class="form-control sh-status">'
+          $.each(kwargs.leader,function (i,iv) {
+              mtr = mtr+ '<option>' + iv.leadername + '</option>'
+           });
+          mtr = mtr + '</select></td><td>' + kwargs.workorderneeds__deploy_time + '</td><td>'
+          mtr = mtr + '待审批' + '</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a> <button type="button" class="btn btn-primary btn-sm">同意</button> <button type="button" class="btn btn-danger btn-sm">不同意</button></td></tr>'
+      }else {
+          mtr = mtr + '<td>'+ kwargs.twolevelLeader_name + '</td><td>' + kwargs.workorderneeds__deploy_time +'</td><td>'+ kwargs.groupleader_agree +'</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+      }
+      return mtr
+  }
+  // 填充项目发布日期
+  $.ajax({
+      url:"{% url 'Opsys:OneleaderAgree' %}",
+      dataType:"json",
+      type:"GET",
+      data:{'need_date':true},
+      async:false,
+      success:function (args) {
+          if(args.result){
+              $.each(args.data,function (i,iv) {
+                  $('.need-date').append(
+                      '<option>'+ iv + '</option>'
+                  )
+              })
+          }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+          }
+      }
+  });
+  // 获取项目发布日期最新一个日期的数据
+  var ndate = $(".need-date").children().eq(1).val();
+  var sp_status = $('.sh-status').val();
+  $.ajax({
+      url:"{% url 'Opsys:OneleaderAgree' %}",
+      type: "POST",
+      dataType: "json",
+      data:{'ndate':ndate, 'sp_status':sp_status},
+      success:function (args) {
+          if(args.result){
+              data=args.data;
+              normalcreatetbody('sh-table',args.data,20,createorder);
+          }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+          }
+      }
+  });
+  //绑定eye的点击事件，查看具体详细信息
+  $("#sh-table tbody").on("click","a.fa-eye",function () {
+      var id=$(this).parent().siblings().eq(0).text();
+      var project_name = $(this).parent().siblings().eq(2).text();
+      $("#modal-md-close .modal-title").text(project_name+"发布详细信息");
+      $("#modal-md-close .modal-body").empty();
+      $("#modal-md-close .modal-body").append(
+          '<table class="table table-bordered table-hover"><tbody></tbody></table>'
+      );
+      $.each(data,function (i,iv) {
+          if (iv.id == parseInt(id)){
+              var tamper_resistant_start_time= iv.tamper_resistant_start_time ? iv.tamper_resistant_start_time.replace(/T/g," "):null
+              var tamper_resistant_end_time=iv.tamper_resistant_end_time ? iv.tamper_resistant_end_time.replace(/T/g," "):null
+              $("#modal-md-close .modal-body tbody").append(
+                  '<tr><td>需求内容</td><td>'+iv.workorderneeds__need_content+'</td></tr>'+
+                  '<tr><td>项目经理</td><td>'+iv.workorderneeds__product_manager_name + '</td></tr>'+
+                  '<tr><td>上线日期</td><td>'+iv.workorderneeds__deploy_time + '</td></tr>'+
+                  '<tr><td>项目所属</td><td>'+iv.project_class+'</td></tr>'+
+                  '<tr><td>服务名称</td><td>'+iv.project_name+'</td></tr>'+
+                  '<tr><td>发布人</td><td>' + iv.deploy_username+'</td></tr>'+
+                  '<tr><td>防窜改开始时间</td><td>' + tamper_resistant_start_time +'</td></tr>'+
+                  '<tr><td>防篡改结束时间</td><td>'+ tamper_resistant_end_time +'</td></tr>'+
+                  '<tr><td>代码审核人</td><td>'+iv.code_verify_name+'</td></tr>'+
+                  '<tr><td>研发人员</td><td>'+iv.developers_name+'</td></tr>'+
+                  '<tr><td>测试人员</td><td>'+iv.tester_name+'</td></tr>'+
+                  '<tr><td>是否运维留守</td><td>'+iv.db_op+'</td></tr>'+
+                  '<tr><td>运维留守原因</td><td>'+iv.operation_need_reasons+'</td></tr>'+
+                  '<tr><td>发布开始时间</td><td>'+iv.deploy_start_time.replace(/T/g," ")+'</td></tr>'+
+                  '<tr><td>发布结束时间</td><td>'+iv.deploy_end_time.replace(/T/g," ") +'</td></tr>'
+              );
+              return false;
+          }
+      });
+      $("#modal-md-close").modal('show');
+  });
+  //绑定同意点击事件
+  $("#sh-table tbody").on("click",".btn-primary",function () {
+      var id = $(this).parent().siblings().eq(0).text();
+      var two_leader = $(this).parent().siblings().eq(4).children().val();
+      var mythis = $(this).parent().parent();
+      $.ajax({
+          url:"{% url 'Opsys:OneleaderIfAgreePost' %}",
+          dataType: "json",
+          type: "POST",
+          data: {'id':id,'two_leader':two_leader,'groupleader_agree':'同意'},
+          success:function (args) {
+              if(args.result){
+                  mythis.remove();
+              }else {
+                  var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                  $(location).prop('href',url);
+              }
+          }
+      })
+
+  });
+  //绑定不同意点击事件
+  $("#sh-table tbody").on("click",".btn-danger",function () {
+      var id = $(this).parent().siblings().eq(0).text();
+      var two_leader = "";
+      var mythis = $(this).parent().parent();
+      $.ajax({
+          url:"{% url 'Opsys:OneleaderIfAgreePost' %}",
+          dataType: "json",
+          type: "POST",
+          data: {'id':id,'two_leader':two_leader,'groupleader_agree':'不同意'},
+          success:function (args) {
+              if(args.result){
+                  mythis.remove();
+              }else {
+                  var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                  $(location).prop('href',url);
+              }
+          }
+      })
+
+  });
+  // 绑定日期select选择的change事件
+  $(".need-date").change(function () {
+      var need_date = $(this).val();
+      if (need_date == '选择日期'){
+          return false;
+      }
+      var sh_status = $('.sh-status').val();
+      $.ajax({
+        url:"{% url 'Opsys:OneleaderAgree' %}",
+        type: "POST",
+        dataType: "json",
+        data:{'ndate':need_date, 'sp_status':sh_status},
+        success:function (args) {
+            if(args.result){
+                data=args.data;
+                normalcreatetbody('sh-table',args.data,20,createorder);
+            }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+            }
+        }
+       });
+
+  });
+  // 绑定审核select选择change事件
+  $(".sh-status").change(function () {
+    var sh_status = $(this).val();
+    var need_date = $(".need-date").val();
+    if(need_date == "选择日期"){
+        return false
+    }else {
+        $.ajax({
+          url:"{% url 'Opsys:OneleaderAgree' %}",
+          type: "POST",
+          dataType: "json",
+          data:{'ndate':need_date, 'sp_status':sh_status},
+          success:function (args) {
+              if(args.result){
+                  data=args.data;
+                  normalcreatetbody('sh-table',args.data,20,createorder);
+              }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+              }
+          }
+       });
+    }
+  });
+
+  </script>
+{% endblock %}

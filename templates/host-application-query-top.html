@@ -1,0 +1,6 @@
+  <ul class="nav nav-tabs nav-justified " style="margin-top: 30px;">
+    <li role="presentation" id="host-power-query"><a href="{% url 'Opsys:HostPowerQuery' %}">当前用户拥有主机权限</a></li>
+    {% if role_name == 'admin' %}
+        <li role="presentation" id="host-power-query-given" ><a href="{% url 'Opsys:HostPowerAdminQuery' %}">已授予普通用户主机权限</a></li>
+    {% endif %}
+  </ul>

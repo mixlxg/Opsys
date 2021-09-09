@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+ {% include 'loading.html' %}
+ <style>
+     .application-top-select{
+      margin-top: 40px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+ </style>
+{% endblock %}
+{% block content %}
+  {% include 'application-top.html' %}
+  <div class="application-top-select">
+    <div class="col-md-5 col-md-offset-3">
+        <button type="button" class="btn btn-primary btn-lg btn-block" id="uip-in-id">UIP-IN 紧急恢复</button>
+    </div>
+  </div>
+  {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script>
+      $("#containerSettings").collapse('show');
+      $("#application-yj").addClass("active");
+      $("#uip-in-id").click(function () {
+          $("#modal-md-close .modal-title").text("紧急恢复UIP-IN故障");
+          $.ajax({
+              url:"{% url 'Opsys:ApplicationYJ'%}",
+              type: "GET",
+              dataType: "json",
+              beforeSend: function(){
+                $("#modal-md-close .modal-body").empty();
+                $("#modal-md-close .modal-body").append('<div class="loading01" ><div>');
+                $("#modal-md-close").modal('show');
+              },
+              success:function (args) {
+                $("#modal-md-close .modal-body").empty();
+                if(args.result){
+                    $("#modal-md-close .modal-body").append(
+                        '<h1>恢复成功<h1>'
+                    );
+                }else {
+                    $("#modal-md-close .modal-body").append(
+                        '<h1>恢复失败错误信息如下：<h1><h3>'+ args.error_mess + '</h3>'
+                    );
+                }
+              }
+          });
+      });
+  </script>
+
+{% endblock %}

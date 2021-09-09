@@ -1,0 +1,11 @@
+  <ul class="nav nav-tabs nav-justified " style="margin-top: 30px;">
+    <li role="presentation" id="deploy-apply"><a href="{% url 'Opsys:DeployManage' %}">上线申请</a></li>
+    <li role="presentation" id="deploy-test"><a href="{% url 'Opsys:DeployProjectTest' %}">测试环境发布</a></li>
+    <li role="presentation" id="deploy"><a href="{% url 'Opsys:DeployProject' %}">生产环境发布</a></li>
+    {% if request.user.get_full_name in group_leader or role == 'admin' %}
+      <li role="presentation"  id="deploy-app-top-groupleader-agree"><a href="{% url 'Opsys:OneleaderAgree' %}">组长审批</a></li>
+    {% endif %}
+    {% if request.user.get_full_name in leader or role == 'admin' %}
+      <li role="presentation" id="deploy-app-top-leader-agree" ><a href="{% url 'Opsys:TwoleaderAgree' %}">领导审批</a></li>
+    {% endif %}
+  </ul>

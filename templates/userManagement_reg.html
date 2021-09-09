@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block css %}
+  <style>
+    .content-left-reg{
+      margin-top: 80px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "userManagement_top_navbar.html" %}
+  <div class="col-md-8 col-md-offset-2 content-left-reg">
+    <h4 class="text-center text-primary">用户注册</h4><hr>
+    <form class="from form-horizontal" id="form-register" >
+      <div class="form-group">
+        <label for="username" class="col-sm-2 control-label">用户名：</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="username" placeholder="请输出用户名" name="username" >
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
+        <div class="col-sm-8">
+          <input type="email" class="form-control" id="inputEmail3" placeholder="请输入邮箱"  name="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputPassword3" class="col-sm-2 control-label">密码：</label>
+        <div class="col-sm-8">
+          <input type="password" class="form-control" id="inputPassword3" placeholder="请输入密码" name="password">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="aliasname" class="col-sm-2 control-label">别名：</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="aliasname" placeholder="请输入用户别名" name="aliasname">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="selectrole" class="col-sm-2 control-label">角色：</label>
+        <div class="col-sm-8">
+          <select class="form-control" id="selectrole" name="role">
+            {% for myrole in data %}
+            <option value="{{ myrole.id }}">{{ myrole.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-offset-2 col-sm-8 text-center">
+        <span id="error_mess"></span>
+      </div>
+      <div class="form-group"><hr>
+        <div class="col-sm-offset-2 col-sm-8">
+            <button type="button" class="btn btn-info btn-block" id="btn-register">注 册</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#systemSetting").collapse('show');
+    $("#usermanagement_reg").addClass("active")
+    $("#btn-register").on('click',function () {
+       $.ajax({
+            url:window.location.href,
+            data:$("#form-register").serialize(),
+            type:"POST",
+            success:function (args) {
+                var res=JSON.parse(args);
+                if (res["result"]){
+
+                    $('#error_mess').removeClass();
+                    $("#form-register").get(0).reset();
+                    $('#error_mess').addClass("glyphicon glyphicon-thumbs-up").css("color","green").text("注册成功");
+                }else {
+                    $('#error_mess').removeClass();
+                    $('#error_mess').addClass("glyphicon glyphicon-asterisk").css("color","red").text(res["error_mess"]);
+                }
+            }
+        })
+    })
+  </script>
+{% endblock %}

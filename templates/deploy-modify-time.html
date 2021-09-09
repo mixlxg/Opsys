@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <link href="{% static 'plugin/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" media="screen">
+  <style>
+    .tab-top{
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .select-margin {
+        margin-top: 20px;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+   <!-- Nav tabs -->
+  <ul class="nav nav-tabs tab-top" role="tablist">
+    <li role="presentation" class="active"><a href="#deploy-time-select" aria-controls="deploy-time-select" role="tab" data-toggle="tab">发布时间</a></li>
+    {% if role == 'admin' %}
+      <li role="presentation"><a href="#deploy-time-set" aria-controls="deploy-time-set" role="tab" data-toggle="tab">设置发布时间</a></li>
+      <li role="presentation"><a href="#one-deploy-modify" aria-controls="one-deploy-modify" role="tab" data-toggle="tab">修改需求上线项目</a></li>
+    {% endif %}
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="deploy-time-select">
+      <div class="jumbotron" >
+        <p>项目发布时间：</p>
+        <div class="alert alert-danger text-center" role="alert">
+          {{ start_time|date:"Y-m-d H:i:s" }}  ~ {{ end_time|date:"Y-m-d H:i:s" }}
+        </div>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="deploy-time-set">
+       <form action="" class="form-horizontal"  role="form">
+          <fieldset>
+              <legend>设置项目发布时间</legend>
+              <div class="form-group">
+                  <label for="start-time" class="col-md-2 control-label modal_label">开始时间</label>
+                  <div class="input-group date form_datetime col-md-5" data-link-field="start-time">
+                      <input class="form-control" size="16" type="text" id="start-time">
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                  </div>
+              </div>
+              <div class="form-group">
+                <label for="end_time" class="col-md-2 control-label modal_label">结束时间</label>
+                <div class="input-group date form_date col-md-5"  data-link-field="end_time">
+                  <input class="form-control" size="16" type="text" id="end_time">
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                </div>
+              </div>
+              <hr>
+              <div class="col-md-4 col-md-offset-2">
+                <button type="button" class="btn btn-primary btn-block btn-submit-time">确定</button>
+              </div>
+          </fieldset>
+      </form>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="one-deploy-modify">
+      <div class="col-md-8">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button">选择日期</button>
+          </span>
+          <select class="form-control" id="need-date-select">
+          </select>
+        </div><!-- /input-group -->
+      </div><!-- /.col-lg-6 -->
+    </div>
+  </div>
+  {% include "modal-min-close.html" %}
+  {% include "min-modal.html" %}
+  {% include "md-modal-deploy-modify.html" %}
+  <div class="modal fade " tabindex="-1" role="dialog" id="min-edit-modal">
+    <div class="modal-dialog modal-sm " role="document">
+      <div class="modal-content">
+        <div class="modal-header alert alert-danger">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">修改发布项目警告</h4>
+        </div>
+        <div class="modal-body text-center">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning">修改</button>
+          <button type="button" class="btn btn-danger" >删除</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+{% endblock %}
+{% block script %}
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js'%}" charset="UTF-8"></script>
+  <script>
+  $("#deploySettings").collapse('show');
+  $('.form_datetime').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      startView: 2,
+      forceParse: 0,
+      showMeridian: 1,
+      format: 'yyyy-mm-dd hh:ss'
+      });
+  $('.form_date').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      startView: 2,
+      forceParse: 0,
+      showMeridian: 1,
+      format: 'yyyy-mm-dd hh:ss'
+      });
+  $(".btn-submit-time").click(function () {
+      var start_time = $("#start-time").val().trim();
+      var end_time = $("#end_time").val().trim();
+      if (start_time == "" || end_time == ""){
+        $("#modal-min-close .modal-body").empty().text("开始时间或者结束时间不能为空").css({'color':'red'});
+        $("#modal-min-close").modal('show');
+      }else {
+          $.ajax({
+              url:"{% url 'Opsys:DeployTimeControl' %}",
+              dataType:"json",
+              type:"GET",
+              data:{"mtype":"deploy","start_time":start_time,"end_time":end_time},
+              success:function (args) {
+                  if(args.result){
+                      location.reload();
+                  }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                  }
+              }
+              
+          })
+      }
+  });
+  $.ajax({
+      url:"{% url 'Opsys:DeployOrderDownload' %}",
+      type: "GET",
+      dataType: "json",
+      async: false,
+      success:function (args) {
+          if(args.result){
+             $.each(args.data, function (i,iv) {
+                 $("#need-date-select").append(
+                   '<option>' + iv + '</option>'
+                 );
+             })
+          }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+          }
+      }
+  });
+  //设置全局data变量
+  var data;
+  var ndata;
+  function make_select(ndate) {
+    if (ndate === false){
+        var cur_ndate = $("#need-date-select").val();
+    }else {
+        var cur_ndate = ndate
+    }
+    if (cur_ndate != null){
+         $("#need-date-select").parent().siblings().remove();
+         $.ajax({
+             url:"{% url 'Opsys:NeedOrderModify' %}",
+             dataType: "json",
+             type: "GET",
+             async: false,
+             data: {'ndate': cur_ndate.trim()},
+             success:function (args) {
+                 if(args.result){
+                    data = args.data;
+                    ndata = args.ndata;
+                 }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                 }
+             }
+         });
+         $("#one-deploy-modify .col-md-8").append(
+            '<div class="input-group select-margin" id="need-content-div"><span class="input-group-btn"><button class="btn btn-success" type="button">选择需求</button></span><select class="form-control"></select></div>'
+         );
+         $.each(ndata,function (i,iv) {
+             $("#need-content-div select").append(
+                 '<option value='+ iv.id +'>'+ iv.need_content + '</option>'
+             );
+         });
+         need_id = $("#need-content-div select").val();
+         // 生成存放发布项目的按钮框
+         $("#one-deploy-modify .col-md-8").append(
+            '<div class="alert alert-info  select-margin" role="alert"><button type="button" class="close" aria-label="Close"><span>&times;</span></button><div class="order-div"></div></div>'
+         )
+         $.each(data, function (i,iv) {
+             if(iv.id == parseInt(need_id)){
+               $(".order-div").append(
+                   '<button type="button" class="btn btn-danger btn-sm">' + iv.need_deploy_project__project_name  + ' <span class="badge">'+ iv.need_deploy_project__id +'</span></button> '
+               )
+             }
+         })
+    }else {
+        $("#need-date-select").parent().siblings().remove();
+    }
+    // 需求select 切换
+    $("#need-content-div select").change(function () {
+      var nid = $(this).val().trim();
+      $(".order-div").empty();
+      $.each(data,function (i,iv) {
+          if(iv.id === parseInt(nid)){
+             $(".order-div").append(
+               '<button type="button" class="btn btn-danger btn-sm">' + iv.need_deploy_project__project_name + ' <span class="badge">'+ iv.need_deploy_project__id +'</span></button> '
+             )
+          }
+      })
+    });
+  }
+  //生成默认页面
+  make_select(false);
+  // 日期select 切换
+  $("#need-date-select").change(function () {
+      var ndate = $(this).val().trim();
+      make_select(ndate);
+  });
+  // 绑定class=close事件
+  $("#one-deploy-modify").on("click",".alert-info .close",function () {
+      var nname = $("#need-content-div select").find("option:selected").text().trim();
+      $("#mim-modal .modal-title").text("删除提示！");
+      $("#mim-modal .modal-body").text('删除('+nname+')需求？');
+      $("#mim-modal").modal('show');
+  })
+  // 绑定min-close 确认事件
+  $("#mim-modal .btn-primary").click(function () {
+      var nid = $("#need-content-div select").val().trim();
+      var nname = $("#need-content-div select").find("option:selected").text().trim();
+      $.ajax({
+          url: "{% url 'Opsys:NeedOrderModify' %}",
+          type: "POST",
+          dataType: "json",
+          data: {"nop": true, "op_type": "delete", "nid": nid},
+          success:function (args) {
+              if(args.result){
+                  $.ajax({
+                      url:"{% url 'Opsys:DeployOrderDownload' %}",
+                      type: "GET",
+                      dataType: "json",
+                      async: false,
+                      success:function (args) {
+                          if(args.result){
+                             $("#need-date-select").empty();
+                             $.each(args.data, function (i,iv) {
+                                 $("#need-date-select").append(
+                                   '<option>' + iv + '</option>'
+                                 );
+                             })
+                          }else {
+                              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                              $(location).prop('href',url);
+                          }
+                      }
+                  });
+                  make_select(false);
+                  $("#mim-modal").modal('hide');
+              }else {
+                  var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                  $(location).prop('href',url);
+              }
+          }
+      });
+  });
+  //绑定 发布项目点击事件
+  $("#one-deploy-modify").on("click", ".order-div .btn-danger", function () {
+    var otext = $(this).text();
+    var oid = otext.split(" ")[1].trim();
+    var oname = otext.split(" ")[0].trim();
+    $("#min-edit-modal .modal-body").text("发布id："+ oid+ "  项目名："+oname);
+    $("#min-edit-modal").modal('show');
+  });
+  // 绑定删除order btn 的click事件
+  $("#min-edit-modal .btn-danger").click(function () {
+      var tmp_text = $("#min-edit-modal .modal-body").text().split(" ");
+      var oid = tmp_text[0].split('：')[1].trim();
+      var oname = tmp_text[2].split('：')[1].trim();
+      $.ajax({
+          url: "{% url 'Opsys:NeedOrderModify' %}",
+          type: "POST",
+          dataType: "json",
+          data: {"op_type": "delete", "oid": oid},
+          success:function (args) {
+              if(args.result){
+                $.ajax({
+                      url:"{% url 'Opsys:DeployOrderDownload' %}",
+                      type: "GET",
+                      dataType: "json",
+                      async: false,
+                      success:function (args) {
+                          if(args.result){
+                             $("#need-date-select").empty();
+                             $.each(args.data, function (i,iv) {
+                                 $("#need-date-select").append(
+                                   '<option>' + iv + '</option>'
+                                 );
+                             })
+                          }else {
+                              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                              $(location).prop('href',url);
+                          }
+                      }
+                  });
+                make_select(false);
+                $("#min-edit-modal").modal('hide');
+              }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+              }
+          }
+      });
+  });
+  // 绑定修改order btn 的click事件
+  $("#min-edit-modal .btn-warning").click(function () {
+      var tmp_text = $("#min-edit-modal .modal-body").text().split(" ");
+      var oid = tmp_text[0].split('：')[1].trim();
+      var oname = tmp_text[2].split('：')[1].trim();
+      $.each(data,function (i,iv) {
+          if(iv.need_deploy_project__id ===parseInt(oid)){
+              $(".order-id").val(oid);
+              $(".order-pro-name").val(oname);
+              $(".order-tester").val(iv.need_deploy_project__tester_name);
+              $(".order-coder").val(iv.need_deploy_project__code_verify_name);
+              $("#deploy-datetime-tamper-start").val(iv.need_deploy_project__tamper_resistant_start_time == null ? null:iv.need_deploy_project__tamper_resistant_start_time.replace(/T/g," "));
+              $("#deploy-datetime-tamper-end").val(iv.need_deploy_project__tamper_resistant_end_time== null? null:iv.need_deploy_project__tamper_resistant_end_time.replace(/T/g, " "));
+              $("#deploy-datetime-start").val(iv.need_deploy_project__deploy_start_time.replace(/T/g," "));
+              $("#deploy-datetime-end").val(iv.need_deploy_project__deploy_end_time.replace(/T/g," "));
+              $(".developers-name").val(iv.need_deploy_project__developers_name);
+              return false
+          }
+      })
+      $("#min-edit-modal").modal('hide');
+      $("#md-modal-deploy-modify").modal('show');
+  });
+  // 绑定确认修改 btn的click事件
+  $("#md-modal-deploy-modify .modal-footer .btn-primary").click(function () {
+      var oid = $(".order-id").val().trim();
+      var oname = $(".order-pro-name").val().trim();
+      var tester = $(".order-tester").val().trim();
+      var coder = $(".order-coder").val().trim();
+      var tstart_time = $("#deploy-datetime-tamper-start").val();
+      var tend_time = $("#deploy-datetime-tamper-end").val();
+      var dstart_time = $("#deploy-datetime-start").val();
+      var dend_time = $("#deploy-datetime-end").val();
+      var developer= $(".developers-name").val().trim();
+      $.ajax({
+          url:"{% url 'Opsys:NeedOrderModify' %}",
+          type: "POST",
+          dataType: "json",
+          data:{"op_type":"update","oid":oid,"oname":oname,"tester":tester,"coder":coder,"tstart_time":tstart_time,"tend_time":tend_time,"dstart_time":dstart_time,"dend_time":dend_time,"developer":developer},
+          success:function (args) {
+              if(args.result){
+                make_select(false);
+                $("#md-modal-deploy-modify").modal('hide');
+              }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+              }
+          }
+      });
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load four_arithmetic_operation %}
+{% block css %}
+  <style>
+    .select_top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <div class="col-md-4 pull-right select_top">
+    <form action="{% url 'Opsys:HostManage' %}" method="get">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="请输入ip" name="ip">
+        <span class="input-group-btn">
+          <button class="btn btn-success" type="submit" id="btn_select_ip">查询</button>
+        </span>
+    </div>
+    </form>
+  </div>
+  {% if role == 'admin' %}
+  <table class="table table-bordered table-hover table-condensed ">
+    <thead>
+      <tr class="info">
+        <th>ip地址</th>
+        <th>cpu核数</th>
+        <th>内存</th>
+        <th>硬盘数</th>
+        <th>硬盘信息</th>
+        <th>硬盘总量</th>
+        <th>root密码</th>
+        <th><a class="fa fa-cog" aria-hidden="true" href="jacascript:void(0)"></a></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+      <tr>
+        <td>{{ item.ip }}</td>
+        <td>{{ item.cpu_num }}</td>
+        <td>{{ item.mem_total|mydivision:1073741824 }}GB</td>
+        <td>{{ item.disk_num }}</td>
+        <td>{{ item.disk_mes }}</td>
+        <td>{{ item.disk_total_volume|mydivision:1073741824 }}GB</td>
+        <td>{{ item.root_password }}</td>
+        <td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <table class="table table-bordered table-hover table-condensed ">
+    <thead>
+      <tr class="info">
+        <th>ip地址</th>
+        <th>cpu核数</th>
+        <th>内存</th>
+        <th>硬盘数</th>
+        <th>硬盘信息</th>
+        <th>硬盘总量</th>
+        <th><a class="fa fa-cog" aria-hidden="true" href="jacascript:void(0)"></a></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+      <tr>
+        <td>{{ item.ip }}</td>
+        <td>{{ item.cpu_num }}</td>
+        <td>{{ item.mem_total|mydivision:1073741824 }}GB</td>
+        <td>{{ item.disk_num }}</td>
+        <td>{{ item.disk_mes }}</td>
+        <td>{{ item.disk_total_volume|mydivision:1073741824 }}GB</td>
+        <td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {{ page_str|safe }}
+
+  <div class="modal fade" tabindex="-1" role="dialog" id="host-info-modal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">主机详情</h4>
+        </div>
+        <div class="modal-body" style="white-space:nowrap;overflow-x: auto">
+          <table class="table table-bordered table-hover">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#hostSettings").collapse('show');
+    $("table").on('click','a.fa-eye',function () {
+        var ip=$(this).parent().siblings().eq(0).text()
+        $.ajax({
+            url:"{% url 'Opsys:HostManage' %}",
+            dataType:"json",
+            type:"POST",
+            data: {'ip':ip},
+            success:function (args) {
+                if (args.result){
+                    $("#host-info-modal .modal-body tbody").empty();
+                    var hostdata=args.hostdata
+                    var role=args.role
+                    $("#host-info-modal .modal-body tbody").append(
+                        "<tr><td>IP地址</td><td>"+hostdata.ip+"</td></tr>"+"<tr><td>cpu类型</td><td>"+hostdata.cpu_model+"</td></tr>"+"<tr><td>cpu核数</td><td>"+hostdata.cpu_num+"</td></tr>"
+                        + "<tr><td>硬盘信息</td><td>"+hostdata.disk_mes+"</td></tr>" + "<tr><td>硬盘块数</td><td>"+hostdata.disk_num+"</td></tr>"+"<tr><td>硬盘总容量</td><td>"+hostdata.disk_total_volume/1024/1024/1024+"GB</td></tr>"
+                        + "<tr><td>主机名</td><td>"+hostdata.hostname+"</td></tr>" + "<tr><td>内存总量</td><td>"+hostdata.mem_total/1024/1024/1024+"GB</td></tr>"+"<tr><td>网卡信息</td><td>"+hostdata.net_card_mes+"</td></tr>"
+                        + "<tr><td>操作系统</td><td>"+hostdata.os_version+"</td></tr>"
+                    )
+                    if(role == 'admin'){
+                      $("#host-info-modal .modal-body tbody").append(
+                          "<tr><td>root密码</td><td>"+hostdata.root_password+"</td></tr>"
+                      )
+                    }
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString()
+                    $(location).prop('href',url);
+                }
+            }
+        })
+        $("#host-info-modal").modal('show');
+    })
+  </script>
+{% endblock %}

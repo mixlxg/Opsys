@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  <style>
+    .tab-top{
+      border: #2aabd2 solid 1px;
+      margin-top: 50px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .hide {
+        display: none;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'db-sql-apply-top.html' %}
+  <div class="tab-top bg-danger">
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label for="cluster_name" class="col-md-2 control-label modal_label">集群名称</label>
+        <div class="col-md-3">
+            <select class="form-control" id="cluster_name"></select>
+        </div>
+        <label for="db_name" class="col-md-2 control-label modal_label">Schema</label>
+        <div class="col-md-3">
+            <select class="form-control" id="db_name"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="master_ip" class="col-md-2 control-label modal_label">主节点IP</label>
+        <div class="col-md-3">
+            <input class="form-control" type="text" id="master_ip" readonly>
+        </div>
+        <label for="db_type" class="col-md-2 control-label modal_label">数据库类型</label>
+        <div class="col-md-3">
+            <input class="form-control" type="text" id="db_type" readonly>
+        </div>
+      </div>
+        <div class="form-group">
+        <label for="appy-reson" class="col-md-2 control-label modal_label">申请原因</label>
+        <div class="col-md-8">
+            <input class="form-control" type="text" id="appy-reson" placeholder="必须写明原因" >
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="sql" class="col-md-2 control-label modal_label">SQ语句</label>
+        <div class="input-group col-md-9" >
+            <textarea  class="form-control" rows="20" id="sql" placeholder="要执行sql语句，每条语句必须以; 结束。如果批量导入sql不建议从这里执行，单独联系dba执行"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="group_leader" class="col-md-2 control-label modal_label">审批组长</label>
+        <div class="input-group col-md-8">
+            <select class="form-control" id="group_leader"></select>
+        </div>
+      </div>
+      <div class="form-group" id="commit-btn">
+        <div class="col-sm-offset-3 col-sm-3">
+          <button type="button" class="btn btn-primary btn-block">提交申请</button>
+        </div>
+        <div class="col-sm-3">
+          <button type="button" class="btn btn-danger btn-block">重置</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% include 'md-modal-deploy-project.html' %}
+  {% include 'min-modal.html' %}
+  {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script>
+  $("#dbsqlpowerapply").collapse('show');
+  $("#db-sql-apply").addClass('active');
+  var schema_data;
+  // 获取数据库信息
+  $.ajax({
+      url:"{% url 'Opsys:DbSqlApply' %}",
+      type: "GET",
+      dataType: "json",
+      async: false,
+      success: function (args) {
+        if(args.result){
+            schema_data=args.data;
+        }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+        }
+      }
+  });
+  // 填充集群名称select
+  $.each(schema_data["cluster"],function (cluster_name,cluster_mess) {
+    $("#cluster_name").append(
+        '<option>'+cluster_name+'</option>'
+    );
+  });
+  // 获取默认的cluster name 地址
+  var cluster_name = $("#cluster_name").val().trim();
+  // 添加 schema 默认数据
+  $.each(schema_data["cluster"][cluster_name]["schema"],function (i,schema) {
+    $("#db_name").append(
+        '<option>'+ schema+'</option>'
+    );
+  });
+  // 默认master ip地址
+  $("#master_ip").val(schema_data["cluster"][cluster_name]["host_ip"]);
+  // 默认 数据库类型
+  $("#db_type").val(schema_data["cluster"][cluster_name]["db_type"]);
+  // 填充组长信息
+  $.each(schema_data["group_leader"],function (i,leader_name) {
+    $("#group_leader").append(
+        '<option>'+ leader_name+'</option>'
+    );
+  });
+  // 集群名称绑定change事件
+  $("#cluster_name").change(function () {
+    var cluster_name = $(this).val().trim();
+    $("#db_name").empty();
+    $.each(schema_data["cluster"][cluster_name]["schema"],function (i,schema) {
+    $("#db_name").append(
+        '<option>'+ schema+'</option>'
+    );
+  });
+    // 默认master ip地址
+    $("#master_ip").val(schema_data["cluster"][cluster_name]["host_ip"]);
+    // 默认 数据库类型
+    $("#db_type").val(schema_data["cluster"][cluster_name]["db_type"]);
+  });
+  // 重置功能
+  $("form .btn-danger").click(function () {
+      // 重置sql
+      $("#sql").val("");
+  });
+  // 提交sql执行申请
+  $("form .btn-primary").click(function () {
+    // 获取要提交的数据
+    var cluster_name=$("#cluster_name").val().trim();
+    var schema_name=$("#db_name").val().trim();
+    var group_leader=$("#group_leader").val().trim();
+    var sql = $("#sql").val().trim();
+    var apply_reson = $("#appy-reson").val().trim();
+    // 提交sql执行申请
+    $.ajax({
+        url:"{% url 'Opsys:DbSqlApply' %}",
+        type:"POST",
+        dataType: "json",
+        data:{"cluster_name": cluster_name,"schema_name": schema_name,"group_leader":group_leader,"sql":sql,"apply_reson":apply_reson},
+        success:function (args) {
+            if(args.result){
+                // 重启sql框
+                $("#sql").val("");
+            }else {
+               var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+               $(location).prop('href',url);
+            }
+        }
+    });
+  });
+  </script>
+{% endblock %}

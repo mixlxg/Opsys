@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+ {% include 'loading.html' %}
+  <style>
+    .application-top-select{
+      border: #2aabd2 solid 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+      margin-left:-20px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  {% include 'application-top.html' %}
+  <div>
+    <div class="col-md-12 application-top-select bg-primary ">
+      <form class="form-horizontal">
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label modal_label" for="project—name">应用归属</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="project—name">
+              </select>
+             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label for="type" class="col-sm-3 control-label modal_label">应用名</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="appname">
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4 col-md-offset-4 top-btn">
+          <button type="button" class="btn btn-warning">应用修改</button>
+          <button type="button" class="btn btn-danger">应用删除</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-10 col-md-offset-1 application-top-select bg-danger hide">
+        <form class="form-horizontal">
+          <div class="form-group form-group-sm">
+            <label  class="col-sm-2 control-label modal_label" >项目归属</label>
+            <div class="col-sm-4 ">
+                <select class="form-control projectName">
+
+                </select>
+            </div>
+            <label class="col-sm-2 control-label modal_label">程序类型</label>
+            <div class="col-sm-4">
+                <select class="form-control service_type">
+                  <option>tomcat</option>
+                  <option>springboot</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">项目名</label>
+            <div class="col-sm-4">
+               <input type="text" class="form-control service_name" readonly>
+            </div>
+            <label class="col-sm-2 control-label modal_label">服务端口</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control service_port">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">jmx端口</label>
+            <div  class="col-sm-4" >
+              <input class="form-control jmx_port" type="text" >
+            </div>
+            <label class="col-sm-2 control-label modal_label">服务状态</label>
+            <div  class="col-sm-4" >
+                <select class="form-control status">
+                  <option>online</option>
+                  <option>offline</option>
+                  <option>wait_online</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">基路径</label>
+            <div class="col-sm-10">
+              <input class="form-control base_path" type="text" >
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label  class="col-sm-2 control-label modal_label">程序包发布路径</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control package_deploy_path">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">Jenkins程序包生成路径</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control package_name">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">启动脚本</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control start_script">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">停止脚本</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control stop_script">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">日志路径</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control log_path">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">Jenkins打包使用配置文件路径</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control service_conf_name">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">应用配置文件统一管理路径</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control jenkin_service_conf_name">
+            </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label modal_label">程序部署IP地址</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control host_ip" readonly>
+            </div>
+          </div>
+        </form>
+        <div class="col-sm-3 col-sm-offset-9 update-btn">
+          <button type="button" class="btn btn-default">取消</button>
+          <button type="button" class="btn btn-primary">确定</button>
+        </div>
+    </div>
+  </div>
+  {% include "modal-min-close.html" %}
+{% endblock %}
+{% block script %}
+  <script>
+      $("#containerSettings").collapse('show');
+      $("#application-manage").addClass("active");
+      //定义一个生成form表格函数
+      function createAppForm(appMess) {
+        $(".projectName").empty();
+        $.each(data, function (key,value) {
+            if(appMess['project_name']==key){
+                $(".projectName").append(
+                    '<option selected>'+key+'</option>'
+                );
+            }else {
+                $(".projectName").append(
+                    '<option>'+key+'</option>'
+                );
+            }
+        });
+        $(".service_type").children().each(function (index) {
+            if($(this).val() == appMess['type']){
+                $(this).prop("selected",true);
+            }else {
+                $(this).removeProp("selected");
+            }
+        });
+        $(".service_name").val(appMess['service_name']);
+        $(".service_port").val(appMess['service_port']);
+        $(".jmx_port").val(appMess['jmx_port']);
+        $(".status").children().each(function (index) {
+            if($(this).val() == appMess['status']){
+                $(this).prop("selected",true);
+            }else {
+                 $(this).removeProp("selected");
+            }
+        });
+        $(".base_path").val(appMess['base_path']);
+        $(".package_deploy_path").val(appMess['package_deploy_path']);
+        $(".package_name").val(appMess['package_name']);
+        $(".start_script").val(appMess['start_script']);
+        $(".stop_script").val(appMess['stop_script']);
+        $(".log_path").val(appMess['log_path']);
+        $(".service_conf_name").val(appMess['service_conf_name']);
+        $(".jenkin_service_conf_name").val(appMess['jenkin_service_conf_name']);
+        $(".host_ip").val(appMess['ip'].join(','));
+      }
+      // 定义全局变量 data 存放的是应用所有数据
+      var data;
+      $.ajax({
+          url:"{% url 'Opsys:ApplicationManage' %}",
+          type:"GET",
+          dataType:"json",
+          async:false,
+          success:function (args) {
+            if (args.result){
+                data = args.data;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+          }
+      });
+      // 填充项目归属select
+      $.each(data,function (pname) {
+        $("#project—name").append(
+            '<option>'+pname+ '</option>'
+        );
+      });
+      // 填充应用默认列表
+      var defalutProjectName = $('#project—name').val().trim();
+      appArr = data[defalutProjectName];
+      $.each(appArr,function (index,appMess) {
+        $('#appname').append(
+            '<option>'+appMess['service_name']+'</option>'
+        );
+      });
+      // project_name 绑定change事件
+      $("#project—name").change(function () {
+        var current_project_name = $("#project—name").val().trim();
+        // 清理掉app select 选择框
+        $('#appname').empty();
+        $.each(data[current_project_name],function (index,appMess) {
+            $('#appname').append(
+                '<option>'+appMess['service_name']+'</option>'
+            );
+        });
+      });
+      // 绑定编辑应用按钮
+      $('.top-btn .btn-warning').click(function () {
+        var current_project_name = $("#project—name").val().trim();
+        var appName = $("#appname").val().trim();
+        $.each(data[current_project_name],function (index,appMess) {
+            if(appMess['service_name']==appName){
+                createAppForm(appMess);
+                $("div.bg-danger").removeClass("hide");
+                return false;
+            }
+        });
+      });
+      // 绑定应用删除按钮click事件
+      $('.top-btn .btn-danger').click(function () {
+        projectName=$("#project—name").val().trim();
+        appName=$("#appname").val().trim();
+        $.each(data[projectName],function (key, appMess) {
+            if(appMess['service_name']==appName){
+                if (appMess['status'] != 'offline'){
+                    $("#modal-min-close .modal-body").text(appName + '是'+appMess['status']+'状态不是offline状态不能删除')
+                    $("#modal-min-close").modal('show');
+                }else {
+                    $.ajax({
+                        url:"{% url 'Opsys:ApplicationManage' %}",
+                        type:"POST",
+                        datatype:"json",
+                        data:{"op_type":"delete","service_name":appName},
+                        success:function (args) {
+                            if(args.result){
+                                $("#modal-min-close").modal('hide');
+                                window.location.reload();
+                            }else {
+                                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                                $(location).prop('href',url);
+                            }
+                        }
+                    });
+                }
+                return false;
+            }
+        })
+
+      });
+      // 绑定更新应用form中的取消按钮
+      $(".update-btn .btn-default").click(function () {
+          $(".application-top-select.bg-danger").addClass('hide');
+      });
+      // 绑定更新应用form中的确定按钮
+      $(".update-btn .btn-primary").click(function () {
+        var service_name = $(".service_name").val().trim();
+        var service_type = $(".service_type").val().trim();
+        var service_port = $(".service_port").val().trim();
+        var jmx_port = $(".jmx_port").val().trim();
+        var base_path = $(".base_path").val().trim();
+        var package_deploy_path = $(".package_deploy_path").val().trim();
+        var package_name = $(".package_name").val().trim();
+        var status = $(".status").val().trim();
+        var start_script = $(".start_script").val().trim();
+        var stop_script = $(".stop_script").val().trim();
+        var log_path=$(".log_path").val().trim();
+        var service_conf_name=$(".service_conf_name").val().trim();
+        var jenkin_service_conf_name=$(".jenkin_service_conf_name").val().trim();
+        var project_name=$(".projectName").val().trim();
+        $.ajax({
+            url:"{% url 'Opsys:ApplicationManage' %}",
+            type:"POST",
+            dataType: "json",
+            data:{"op_type":"update","service_name":service_name,"service_type":service_type,"service_port":service_port,"jmx_port":jmx_port,"base_path":base_path,"package_deploy_path":package_deploy_path,"package_name":package_name,"status":status,"start_script":start_script,"stop_script":stop_script,"log_path":log_path,"service_conf_name":service_conf_name,"jenkin_service_conf_name":jenkin_service_conf_name,"project_name":project_name},
+            success:function (args) {
+                if(args.result){
+                    window.location.reload();
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        });
+      });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>联通运维系统</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'pic/titleicon/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'plugin/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar  navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header navbar-header-with">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" id="navbar-brand-project" href="jacascript:void(0)">联通运维系统</a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-left">
+            <li role="presentation" class="active"><a href="{% url 'Opsys:index' %}">Home</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right" role="navigation">
+            <li><a href="jacascript:void(0)" class="glyphicon glyphicon-user"> {{ request.user.get_username}}</a></li>
+            <li><a href="{% url "Opsys:logout" %}" class="glyphicon glyphicon-off"> 退出</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        {% include "base_left_navbar.html" %}
+        <div class="col-md-10">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+              {% block content %}
+               <div class="alert alert-danger">{{ request.user.get_username}} 权限不足，没有权限访问！！！</div>
+              {% endblock %}
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+
+      </div>
+    </div>
+</body>
+<script src="{% static 'plugin/jquery.js' %}"></script>
+<script src="{% static 'plugin/bootstrap/js/bootstrap.min.js' %}"></script>
+{% block script %}{% endblock %}
+</html>

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  <link href="{% static 'plugin/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" media="screen">
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .hide {
+        display: none;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'deploy-apply-top.html' %}
+  <div class="col-md-10 col-md-offset-1 tab-top bg-info">
+    <h4 class="text-center text-primary">填写上线申请单</h4>
+    <form class="form-horizontal text-center">
+      <div class="form-group">
+        <label for="deploy-date" class="col-md-2 control-label modal_label">上线日期</label>
+        <div class="input-group date form_date col-md-8" data-link-field="deploy-date" data-link-format="yyyy-mm-dd">
+            <input class="form-control" type="text" id="deploy-date" placeholder="不能为空必填">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="need-content-select" class="col-md-2 control-label modal_label">需求选择</label>
+        <div class="input-group col-md-8" >
+            <select  class="form-control"  id="need-content-select" >
+                <option>测试环境</option>
+                <option>需求不在选择框手动添加</option>
+            </select>
+        </div>
+      </div>
+      <div class="form-group hide">
+        <label for="need-content" class="col-md-2 control-label modal_label">填写需求</label>
+        <div class="input-group col-md-8" >
+            <textarea  class="form-control" rows="2" id="need-content" placeholder="输入产品需求描述，不能为空"></textarea>
+        </div>
+      </div>
+      <div class="form-group hide">
+        <label for="product-manager-name" class="col-md-2 control-label modal_label">项目经理</label>
+        <div class="input-group col-md-8" >
+            <input  class="form-control" type="text" id="product-manager-name" placeholder="多个项目经理用,分开">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-3">
+          <button type="button" class="btn btn-primary btn-block" id="add-project-btn">添加发布项目</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-1 deploy-btn">
+        </div>
+      </div>
+      <span class="error-span text-danger"></span>
+      <hr>
+      <div class="form-group">
+        <div class="col-md-6 col-md-offset-3">
+          <button type="button" class="btn btn-danger btn-block submit-btn">提交工单</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% include 'md-modal-deploy-project.html' %}
+  {% include 'min-modal.html' %}
+  {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js'%}" charset="UTF-8"></script>
+  <script>
+  $("#deploySettings").collapse('show');
+  $("#deploy-apply").addClass('active');
+  var deploy_data=[];
+  $('.form_date').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      startView: 2,
+      forceParse: 0,
+      minView:2,
+      format: "yyyy-mm-dd"
+      });
+  $('.form_datetime').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      forceParse: 0,
+      startView: 2,
+      showMeridian: 1,
+      format: "yyyy-mm-dd hh:mm:ss"
+      });
+  $('#add-project-btn').click(function () {
+    $("#md-modal-deploy-project .modal-title").empty();
+    $("#md-modal-deploy-project .modal-title").text('填写发布项目信息');
+    $("#md-modal-deploy-project form")[0].reset();
+    $("#md-modal-deploy-project .form-horizontal").siblings().remove();
+    $.ajax({
+        url:"{% url 'Opsys:GetDeployMess' %}",
+        dataType: "json",
+        type: "GET",
+        async: false,
+        success:function (args) {
+            if (args.result){
+              // 清空option
+              $("#md-modal-deploy-project .project-class").empty();
+              $("#md-modal-deploy-project .project-name").empty();
+              $("#md-modal-deploy-project .one-leader").empty();
+              $("#md-modal-deploy-project .code-verify-name").empty();
+              $.each(args.data,function (k,v) {
+                  $("#md-modal-deploy-project .project-class").append(
+                      '<option>'+ k + '</option>'
+                  )
+              })
+              $("#md-modal-deploy-project .project-class").change(function () {
+                 var project_class = $(this).val();
+                 var project_type = $(".project-type").val();
+                 $("#md-modal-deploy-project .project-name").empty();
+                 $.each(args.data[project_class][project_type],function (i,iv) {
+                     $("#md-modal-deploy-project .project-name").append(
+                         '<option>' + iv + '</option>'
+                     )
+                 })
+              });
+              $("#md-modal-deploy-project .project-type").change(function () {
+                  var project_class = $("#md-modal-deploy-project .project-class").val();
+                  var project_type = $(this).val();
+                  $("#md-modal-deploy-project .project-name").empty();
+                  $.each(args.data[project_class][project_type],function (i,iv) {
+                     $("#md-modal-deploy-project .project-name").append(
+                         '<option>' + iv + '</option>'
+                     )
+                  })
+              });
+              // 填充组长信息select
+              $.each(args.oneleader,function (i,iv) {
+                  $('.one-leader').append(
+                      '<option>'+ iv + '</option>'
+                  )
+              });
+              // 填充代码审核人
+              $.each(args.oneleader,function (i,iv) {
+                  $('.code-verify-name').append(
+                      '<option>'+ iv + '</option>'
+                  )
+              });
+            }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+            }
+        }
+    })
+    $("#md-modal-deploy-project").modal('show')
+  });
+  $('#md-modal-deploy-project .modal-footer button').eq(1).click(function () {
+     var error_mess;
+     var project_class = $(".project-class").val().trim();
+     var project_name = $(".project-name").val();
+     var code_verify_name = $(".code-verify-name").val().trim();
+     var developers_name = $(".developers-name").val().trim();
+     var tester_name = $(".tester-name").val().trim();
+     var db_op = $("input[name='db_op']:checked").val().trim() == "0" ? "否":"是";
+     var operation_need_reasons = $(".operation-need-reasons").val().trim();
+     var tamper_resistant_start_time = $("#deploy-datetime-tamper-start").val().trim() =="" ? null: $("#deploy-datetime-tamper-start").val().trim();
+     var tamper_resistant_end_time = $("#deploy-datetime-tamper-end").val().trim() =="" ?null: $("#deploy-datetime-tamper-end").val().trim();
+     var deploy_start_time = $("#deploy-datetime-start").val().trim();
+     var deploy_end_time = $("#deploy-datetime-end").val().trim();
+     var groupleader_name = $(".one-leader").val().trim();
+     if (db_op == "是" && operation_need_reasons == ""){
+         error_mess="说明运维留守原因";
+     }
+     if (deploy_end_time == "" || deploy_start_time == ""){
+         error_mess= "发布开始或者结束时间不能为空";
+     }
+     if (project_name == null){
+         error_mess="项目名称必须选择";
+     }
+     if (tester_name == ""){
+         error_mess="测试人员不能为空";
+     }
+     if(developers_name == ""){
+         error_mess="开发人员不能为空";
+     }
+     if(code_verify_name == ""){
+         error_mess="代码审核人不能为空";
+     }
+     if (error_mess == undefined){
+        deploy_data.push({project_class:project_class,
+          project_name:project_name,
+          code_verify_name:code_verify_name,
+          developers_name:developers_name,
+          tester_name:tester_name,
+          db_op:db_op,
+          operation_need_reasons:operation_need_reasons,
+          tamper_resistant_start_time:tamper_resistant_start_time,
+          tamper_resistant_end_time:tamper_resistant_end_time,
+          deploy_start_time:deploy_start_time,
+          deploy_end_time:deploy_end_time,
+          groupleader_name:groupleader_name
+      });
+         $('.deploy-btn').append(
+             '<button class="btn btn-warning btn-xs " type="button"><span class="badge">'+deploy_data.length+'</span>'+ project_name+'</button>'
+         );
+         $('#md-modal-deploy-project').modal('hide');
+     }else {
+        $("#md-modal-deploy-project .form-horizontal ").siblings().remove();
+        $("#md-modal-deploy-project .modal-body").append(
+            '<span class="text-danger">'+error_mess+'</span>'
+        )
+     }
+
+  });
+  $(".deploy-btn").on('click','button',function () {
+    var project_name = $(this).get(0).childNodes[1].nodeValue;
+    var index = parseInt($(this).children().text()) -1;
+    $("#mim-modal .modal-title").empty().text('告警提示');
+    $("#mim-modal .modal-body").empty().text('是否删除'+project_name+'项目');
+    $("#mim-modal").modal('show');
+    $("#mim-modal .modal-footer .btn-primary").click(function () {
+        deploy_data.splice(index,1);
+        $('.deploy-btn').empty();
+        $.each(deploy_data,function (i,iv) {
+            $('.deploy-btn').append(
+                '<button class="btn btn-warning btn-xs " type="button"><span class="badge">'+ (i + 1) +'</span>'+ iv["project_name"] +'</button>'
+            )
+        })
+        $("#mim-modal").modal('hide');
+    })
+  })
+  $(".submit-btn").click(function () {
+      var deploy_time = $("#deploy-date").val().trim();
+      var need_content = $("#need-content-select").val().trim();
+      var product_manager_name = $("#product-manager-name").val().trim();
+      var error_mess;
+      console.log(need_content);
+      if (deploy_time === ""){
+          error_mess = "项目上线日期不能为空"
+      }
+      if (need_content === "选择需求"){
+          error_mess = "需求说明不能为空"
+      }else if(need_content === "需求不在选择框手动添加"){
+          need_content=$("#need-content").val().trim();
+          if (need_content === ""){
+              error_mess = "需求说明不能为空"
+          }
+      }
+      if (deploy_data.length === 0){
+          error_mess = "发布项目不能为空"
+      }
+      if (error_mess === undefined){
+          var data={'need':{deploy_time:deploy_time,need_content:need_content,product_manager_name:product_manager_name},'order':deploy_data}
+          $.ajax({
+              url:"{% url 'Opsys:InsertDeployOrder' %}",
+              type: "POST",
+              dataType: "json",
+              data:{'data':JSON.stringify(data)},
+              success:function (args) {
+                  if(args.result){
+                      window.location.reload();
+                  }else {
+                     var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                     $(location).prop('href',url);
+                  }
+              }
+          })
+
+      }else {
+          $(".error-span").text("").text(error_mess);
+      }
+  });
+  $("#need-content-select").mousedown(function () {
+     var needate = $("#deploy-date").val().trim();
+     if (needate == ""){
+         $("#modal-min-close .modal-body").text("上线日期不能为空");
+         $("#modal-min-close").modal('show');
+     }else {
+        $.ajax({
+            url:"{% url 'Opsys:DeployManage' %}",
+            dataType: "json",
+            type: "GET",
+            async: false,
+            data: {'delpoy_date': needate},
+            success:function (args) {
+                if (args.result){
+                    $("#need-content-select").children().slice(2).remove();
+                    $.each(args.data,function (i,v) {
+                        $("#need-content-select").append(
+                          '<option>' + v.need_content +'</option>'
+                        );
+                    })
+                }else {
+                  var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                  $(location).prop('href',url);
+                }
+            }
+        })
+     }
+  });
+  $("#need-content-select").change(function () {
+      var need_content = $(this).val().trim();
+      if (need_content == '需求不在选择框手动添加'){
+          $("#need-content").parent().parent().removeClass('hide');
+          $("#product-manager-name").parent().parent().removeClass('hide');
+      }else {
+           $("#need-content").parent().parent().addClass('hide');
+           $("#product-manager-name").parent().parent().addClass('hide');
+
+      }
+  })
+  </script>
+{% endblock %}

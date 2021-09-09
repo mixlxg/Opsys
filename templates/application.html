@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <style>
+    .application-top-select{
+      border: #2aabd2 solid 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+      margin-left:-20px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  {% include 'application-top.html' %}
+  <div>
+    <div class="col-md-12 application-top-select bg-primary">
+      <form class="form-horizontal">
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label modal_label" for="appname">应用名</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="appname" placeholder="输入应用名">
+             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label for="type" class="col-sm-3 control-label modal_label">应用类型</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="type">
+                <option>请选择</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label modal_label" for="ipaddr">ip地址</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="ipaddr" placeholder="输入IP地址">
+             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label for="status" class="col-sm-3 control-label modal_label">应用状态</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="status">
+                <option>请选择</option>
+                <option >online</option>
+                <option >offline</option>
+                <option>wait_online</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8 col-md-offset-2">
+          <button type="button" class="btn btn-success btn-block">查询</button>
+        </div>
+      </form>
+    </div>
+    <div>
+      <table class="table table-bordered table-hover table-condensed text-center" id="application-mess-table">
+        <thead class="bg-success">
+        <tr>
+          <td>应用名</td>
+          <td>应用类型</td>
+          <td>服务端口</td>
+          <td>jmx端口</td>
+          <td>状态</td>
+          <td>部署主机</td>
+          <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#containerSettings").collapse('show');
+    $("#application-mess").addClass("active");
+    var service_data
+    $.ajax({
+        url:"{% url 'Opsys:Application' %}",
+        type:"GET",
+        dataType:"json",
+        async:false,
+        success:function (args) {
+            if(args.result){
+                service_data=args.service_mess;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    })
+    //创建默认的tobody
+    function fomat_tr(k) {
+        var tr = '<tr><td>'+ k.service_name +'</td><td>'+ k.type + '</td><td>'+ k.service_port
+                +'</td><td>'+k.jmx_port +'</td><td>'+ k.status + '</td><td>' + k.host__ip
+        +'</td><td><a class="fa fa-eye " aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+        return tr
+    }
+    //格式前端分页所需要的数据格式
+    var mes=[]
+    var service_type=[]
+    $.each(service_data,function (k,v) {
+        mes=mes.concat(v);
+        $.each(v,function (i,iv) {
+            if(! service_type.includes(iv['type'])){
+                service_type.push(iv['type']);
+            }
+        })
+    })
+    normalcreatetbody("application-mess-table",mes,15,fomat_tr);
+    //初始化搜索框的应用类型select
+    $.each(service_type,function (i,v) {
+        $("#type").append(
+            "<option>"+v+"</option>"
+        )
+    })
+    //绑定查询事件
+    $("form button").click(function () {
+        var select_data=[]
+        var service_name = $("#appname").val().trim();
+        var service_type = $("#type").val();
+        var ip = $("#ipaddr").val().trim();
+        var service_status = $("#status").val()
+        if (service_status == '请选择'){
+            if(service_type=='请选择'){
+                if(service_name.length==0){
+                    if(ip.length==0){
+                        $.each(service_data,function (k,v) {
+                            select_data=select_data.concat(v);
+                        })
+                    }else {
+                        $.each(service_data,function (k,v) {
+                            $.each(v,function (i,v) {
+                                if(v['host__ip'] == ip){
+                                    select_data.push(v);
+                                }
+                            })
+                        })
+                    }
+                }else {
+                  if(ip.length==0){
+                      if(service_data[service_name] == undefined){
+                          select_data=[];
+                      }else {
+                          select_data=service_data[service_name];
+                      }
+                  }else {
+                      if(service_data[service_name] == undefined){
+                          select_data=[];
+                      }else {
+                          $.each(service_data[service_name],function (i,v) {
+                              if (v['host__ip']==ip){
+                                  select_data.push(v);
+                              }
+                          })
+                      }
+                  }
+                }
+            }else {
+              if(service_name.length == 0){
+                  if(ip.length==0){
+                     $.each(service_data,function (k,v) {
+                         $.each(v,function (i,iv) {
+                             if(iv['type'] == service_type){
+                                 select_data.push(iv);
+                             }
+                         })
+                     })
+                  }else {
+                    $.each(service_data,function (k,v) {
+                        $.each(v,function (i,iv) {
+                            if(iv['type']== service_type && iv['host__ip']==ip){
+                                select_data.push(iv);
+                            }
+                        })
+                    })
+                  }
+              }else {
+                if(ip.length==0){
+                    if(service_data[service_name] == undefined){
+                        select_data=[];
+                    }else {
+                        $.each(service_data[service_name],function (i,v) {
+                            if(v['type']==service_type){
+                                select_data.push(v);
+                            }
+                        })
+                    }
+                }else {
+                    if(service_data[service_name] == undefined){
+                        select_data=[];
+                    }else {
+                      $.each(service_data[service_name],function (i,v) {
+                          if(v['type']==service_type && v['host__ip']==ip){
+                              select_data.push(v);
+                          }
+                      })
+                    }
+                }
+              }
+            }
+        }else {
+           if(service_type=='请选择'){
+                if(service_name.length==0){
+                    if(ip.length==0){
+                        $.each(service_data,function (k,v) {
+                            $.each(v,function (i,iv) {
+                                if(iv['status']==service_status){
+                                    select_data.push(iv);
+                                }
+                            })
+                        })
+                    }else {
+                        $.each(service_data,function (k,v) {
+                            $.each(v,function (i,v) {
+                                if(v['host__ip']==ip && v['status']==service_status){
+                                    select_data.push(v);
+                                }
+                            })
+                        })
+                    }
+                }else {
+                  if(ip.length==0){
+                      if(service_data[service_name] == undefined){
+                          select_data=[];
+                      }else {
+                          $.each(service_data[service_name],function (i,v) {
+                              if(v['status']==service_status){
+                                  select_data.push(v);
+                              }
+                          })
+
+                      }
+                  }else {
+                      if(service_data[service_name] == undefined){
+                          select_data=[];
+                      }else {
+                          $.each(service_data[service_name],function (i,v) {
+                              if (v['host__ip']==ip && v['status']==service_status){
+                                  select_data.push(v);
+                              }
+                          })
+                      }
+                  }
+                }
+            }else {
+              if(service_name.length == 0){
+                  if(ip.length==0){
+                     $.each(service_data,function (k,v) {
+                         $.each(v,function (i,iv) {
+                             if(iv['type'] == service_type && iv['status'] == service_status){
+                                 select_data.push(iv);
+                             }
+                         })
+                     })
+                  }else {
+                    $.each(service_data,function (k,v) {
+                        $.each(v,function (i,iv) {
+                            if(iv['type']== service_type && iv['host__ip']==ip &&iv['status'] == service_status){
+                                select_data.push(iv);
+                            }
+                        })
+                    })
+                  }
+              }else {
+                if(ip.length==0){
+                    if(service_data[service_name] == undefined){
+                        select_data=[];
+                    }else {
+                        $.each(service_data[service_name],function (i,v) {
+                            if(v['type']==service_type && v['status'] == service_status){
+                                select_data.push(v);
+                            }
+                        })
+                    }
+                }else {
+                    if(service_data[service_name] == undefined){
+                        select_data=[];
+                    }else {
+                      $.each(service_data[service_name],function (i,v) {
+                          if(v['type']==service_type && v['host__ip']==ip && v['status'] == service_status){
+                              select_data.push(v);
+                          }
+                      })
+                    }
+                }
+              }
+            }
+        }
+        normalcreatetbody("application-mess-table",select_data,15,fomat_tr);
+    })
+
+    //绑定eye查看详情托管事件
+    $("#application-mess-table tbody").on("click","a.fa-eye",function () {
+        var service_name=$(this).parent().siblings().eq(0).text();
+        var ip=$(this).parent().siblings().last().text();
+        $("#modal-md-close .modal-title").text("应用详情");
+        var service_item=service_data[service_name]
+        $.each(service_item,function (i,v) {
+          if(v['host__ip'] == ip){
+              service_map=v;
+              return false
+          }
+        })
+        $("#modal-md-close tbody").empty();
+        $("#modal-md-close tbody").append(
+            '<tr><td>应用名</td><td>'+service_map['service_name']+'</td></tr><tr><td>应用别名</td><td>' +
+            service_map['service_alias_name'] + '</td></tr><tr><td>IP地址</td><td>'+service_map['host__ip']+
+            '</td></tr><tr><td>应用类型</td><td>'+ service_map['type'] +
+            '</td></tr><tr><td>服务端口</td><td>'+ service_map['service_port'] + '</td></tr><tr><td>jmx端口</td><td>'+
+            service_map['jmx_port'] + '</td></tr><tr><td>上线时间</td><td>'+ service_map['online_date'] +
+            '</td></tr><tr><td>下线时间</td><td>'+service_map['offline_date']+'</td></tr><tr><td>应用部署基目录</td><td>'+
+            service_map['base_path'] +'</td></tr><tr><td>打包名</td><td>'+service_map['package_name']+'</td></tr><tr><td>状态</td><td>'+
+            service_map['status'] +'</td></tr><tr><td>启动脚本</td><td>'+service_map['start_script']+'</td></tr><tr><td>停止脚本</td><td>' +
+            service_map['stop_script']+'</td></tr><tr><td>日志目录</td><td>'+service_map['log_path']+'</td></tr><tr><td>jenkins程序配置文件</td><td>'+
+            service_map['service_conf_name']+'</td></tr><tr><td>jenkins服务器上配置文件目录</td><td>'+service_map['jenkin_service_conf_name'] +'</td></tr>'
+        )
+        $("#modal-md-close").modal('show');
+    })
+  </script>
+{% endblock %}

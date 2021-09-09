@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load numberToChina %}
+{% block css %}
+  <style>
+    .content-top-range{
+      margin-top: 50px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "userManagement_top_navbar.html" %}
+  <div class="content-top-range">
+    {% if error_mes != False %}
+      <div class="alert alert-danger" role="alert">
+        <p>{{ error_mes }}</p>
+      </div>
+    {% else %}
+      <table class="table table-bordered table-hover">
+        <thead class="bg-warning">
+          <tr>
+            <th class="text-center">用户名</th>
+            <th class="text-center">用户别名</th>
+            <th class="text-center">邮箱</th>
+            <th class="text-center">是否superuser</th>
+            <th class="text-center">是否锁定</th>
+            <th class="text-center">所属角色</th>
+            <th class="text-center">最近登录时间</th>
+            <th class="text-center">注册时间</th>
+        </tr>
+        </thead>
+        <tbody class="text-center">
+          {% for item in data %}
+            <tr>
+              <td>{{ item.username }}</td>
+              <td>{{ item.first_name }}</td>
+              <td>{{ item.email }}</td>
+              <td>{% numberToChina item.is_superuser 1 '是' %}</td>
+              <td>{% numberToChina item.is_active 1 '否' %}</td>
+              <td>{{ item.role__name }}</td>
+              <td>{{ item.last_login|date:'Y-m-d H:i:s' }}</td>
+              <td>{{ item.date_joined|date:'Y-m-d H:i:s'}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {{ page_str|safe }}
+    {% endif %}
+  </div>
+{% endblock %}
+{% block script %}
+  <script>
+    $("#systemSetting").collapse('show');
+    $("#usermanagement_select_user").addClass("active")
+  </script>
+{% endblock %}

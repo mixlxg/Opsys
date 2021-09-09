@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+    }
+    .tab-top-send{
+      border: #2aabd2 solid 1px;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs nav-justified tab-top" role="tablist">
+      <li role="presentation" class="active"><a href="#DbMess" aria-controls="DbMess" role="tab" data-toggle="tab">数据库信息查询</a></li>
+      {% if role_name == 'admin' %}
+      <li role="presentation"><a href="#Dbmage" aria-controls="Dbmage" role="tab" data-toggle="tab">数据库信息管理</a></li>
+      {% endif %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="DbMess">
+        <table class="table table-bordered table-hover table-condensed text-center">
+          <thead class="bg-info">
+            <tr>
+              <td>集群名称</td>
+              <td>数据类型</td>
+              <td>数据库版本</td>
+              <td>节点IP地址</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="Dbmage">
+        <div class="pull-right">
+         <button class="btn btn-primary " type="button" >
+            添加数据库信息
+          </button>
+        </div>
+        <table class="table table-bordered table-hover table-condensed text-center">
+          <thead class="bg-info">
+            <tr>
+              <td>DB集群名称</td>
+              <td>DB类型</td>
+              <td>IP地址</td>
+              <td><i class="fa fa-cog" aria-hidden="true"></i></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% include 'md-modal.html' %}
+  {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#containerSettings").collapse('show');
+    //定义一个全局数据变量
+    var data;
+    function createClusterTable(cluster_info){
+        var tr_mess = '<tr><td>'+cluster_info['cluster_name']+'</td><td>'+cluster_info['db_type']+'</td><td>';
+        $.each(cluster_info['node'],function (i,node_mess) {
+           tr_mess = tr_mess + node_mess['host_ip']+'</br>';
+        });
+        tr_mess = tr_mess+'</td><td><a class="fa fa-plus-circle text-info" aria-hidden="true" href="jacascript:void(0)"></a>&nbsp;&nbsp;<a class="fa fa-minus-circle text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td><tr>';
+        return tr_mess
+    }
+    function createClusterMessTable(cluster_info){
+        var tr_mes = '<tr><td>'+cluster_info['cluster_name']+'</td><td>'+cluster_info['db_type']+'</td><td>'+cluster_info['version']+'</td><td>';
+        $.each(cluster_info['node'],function (i,node_mess) {
+            tr_mes= tr_mes +node_mess['host_ip']+':'+node_mess['service_port']+':'+node_mess['role']+'<br>';
+        });
+        tr_mes=tr_mes+'</td><td><a class="fa fa-eye text-info" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>';
+        return tr_mes
+    }
+    // 获取集群信息
+    $.ajax({
+       url:"{% url 'Opsys:DBMange' %}",
+       type: "GET",
+       dataType: "json",
+       async: false,
+       success: function (args) {
+           if(args.result){
+               data = args.data;
+           }else {
+               var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+               $(location).prop('href',url);
+           }
+       }
+    });
+    // 展示已经添加的集群信息
+    normalcreatetbody("Dbmage",data,20,createClusterTable);
+    normalcreatetbody("DbMess",data,20,createClusterMessTable);
+    // 绑定查看数据库信息的事件
+    $("#DbMess tbody").on("click",".fa-eye",function () {
+        var cluster_name = $(this).parent().siblings().eq(0).text();
+        // 查询接口获取数据库已有的schema信息
+        $.ajax({
+            url:"{% url 'Opsys:QueryDb' %}",
+            type: "GET",
+            dataType: "json",
+            data: {'cluster_name': cluster_name},
+            success:function (args) {
+                if(args.result){
+                    $("#modal-md-close .modal-title").text(cluster_name+'集群schema信息如下：');
+                    $("#modal-md-close .modal-body tbody").empty();
+                    $.each(args.data,function (i,db) {
+                        $("#modal-md-close .modal-body tbody").append(
+                            '<tr><td>Schema'+(i+1)+'</td><td>'+db+'</td></tr>'
+                        );
+                    });
+                    $("#modal-md-close").modal('show');
+                }else {
+                    var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                    $(location).prop('href',url);
+                }
+            }
+        });
+
+    });
+    // 绑定添加集群
+    $(".pull-right .btn-primary").click(function () {
+        $("#md-modal .modal-title").text("添加数据库集群信息");
+        $("#md-modal .modal-body").text("");
+        $("#md-modal .modal-body").append(
+            '<form class="form-horizontal">'+
+                '<div class="form-group">' +
+                    '<label for="DbClusterName" class="col-sm-2 control-label modal_label">DB集群名</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="DbClusterName" placeholder="输入数据库集群名">'+
+                    '</div>'+
+                    '<label for="DbType" class="col-sm-2 control-label modal_label">DB类型</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="DbType" placeholder="集群类型">'+
+                    '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                    '<label for="DbVersion" class="col-sm-2 control-label modal_label">DB版本</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="DbVersion" placeholder="数据库版本">'+
+                    '</div>'+
+                    '<label for="service_name" class="col-sm-2 control-label modal_label">服务名</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="service_name" placeholder="oracle类型必填">'+
+                    '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                    '<label for="Db-username" class="col-sm-2 control-label modal_label">用户名</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="Db-username" placeholder="用户名称">'+
+                    '</div>'+
+                    '<label for="Db-password" class="col-sm-2 control-label modal_label">密码</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="Db-password" placeholder="密码">'+
+                    '</div>'+
+                '</div>'+
+            '</form>'
+        );
+        $("#md-modal").modal('show');
+    });
+    // 绑定添加节点信息事件
+    $("#Dbmage tbody").on("click",'.fa-plus-circle',function () {
+        var cluster_name = $(this).parent().siblings().eq(0).text();
+        $("#md-modal .modal-title").text('添加数据库节');
+        $("#md-modal .modal-body").empty();
+        $("#md-modal .modal-body").append(
+            '<form class="form-horizontal">'+
+                '<div class="form-group hide">'+cluster_name+'</div>'+
+                '<div class="form-group">' +
+                    '<label for="host-ip" class="col-sm-2 control-label modal_label">数据库ip</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="host-ip" placeholder="数据库主机ip地址">'+
+                    '</div>'+
+                    '<label for="db-role" class="col-sm-2 control-label modal_label">角色</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="db-role" placeholder="角色">'+
+                    '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                    '<label for="service-port" class="col-sm-2 control-label modal_label">服务端口</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="service-port" placeholder="服务端口">'+
+                    '</div>'+
+                    '<label for="base-path" class="col-sm-2 control-label modal_label">部署目录</label>'+
+                    '<div class="col-sm-4">'+
+                        '<input type="text" class="form-control" id="base-path" placeholder="数据库部署基目录">'+
+                    '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                    '<label for="conf-path" class="col-sm-3 control-label modal_label">配置文件目录</label>'+
+                    '<div class="col-sm-9">'+
+                        '<input type="text" class="form-control" id="conf-path" placeholder="配置文件目录">'+
+                    '</div>'+
+                '</div>'+
+            '</form>'
+        );
+        $("#md-modal").modal('show');
+    });
+    // 绑定删除节点的按钮
+    $("#Dbmage tbody").on("click",".fa-minus-circle",function () {
+        var cluster_name = $(this).parent().siblings().eq(0).text();
+        $("#md-modal .modal-title").text('删除数据库节');
+        $("#md-modal .modal-body").empty();
+        $("#md-modal .modal-body").append(
+            '<form class="form-horizontal">'+
+                '<div class="form-group hide">'+cluster_name+'</div>'+
+                '<div class="form-group">' +
+                    '<label for="host-ip" class="col-sm-4 control-label modal_label">数据库ip</label>'+
+                    '<div class="col-sm-6">'+
+                        '<select class="form-control" id="host-ip" >'+
+                    '</div>'+
+                '</div>'+
+            '</form>'
+        );
+        $.each(data,function (i,cluster_mess) {
+           if(cluster_mess['cluster_name']=== cluster_name){
+               $.each(cluster_mess['node'],function (i,node_mess) {
+                   $("#host-ip").append(
+                       '<option>'+node_mess['host_ip']+'</option>'
+                   )
+               });
+               return false
+           }
+        });
+        $("#md-modal").modal('show');
+    });
+    // 绑定提交按钮
+    $("#md-modal .modal-footer .btn-primary").click(function () {
+        var modal_title = $("#md-modal .modal-title").text();
+        if(modal_title === '添加数据库集群信息'){
+            var cluster_name = $("#DbClusterName").val().trim();
+            var dbtype = $("#DbType").val().trim();
+            var version = $("#DbVersion").val().trim();
+            var service_name = $("#service_name").val().trim();
+            var username = $("#Db-username").val().trim();
+            var password = $("#Db-password").val().trim();
+            // 提交数据
+            $.ajax({
+               url:"{% url 'Opsys:DBMange' %}" ,
+               type: "POST",
+               dataType: "json",
+               data:{'method':'cluster','cluster_name':cluster_name,'version':version,'db_type':dbtype,'service_name':service_name,'username':username,'password':password},
+               success: function (args) {
+                    if(args.result){
+                        window.location.reload();
+                    }else {
+                       var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                       $(location).prop('href',url);
+                    }
+               }
+            });
+        }else if(modal_title === '添加数据库节'){
+            var cluster_name = $("#md-modal .hide").text().trim();
+            var host_ip = $("#host-ip").val().trim();
+            var role = $("#db-role").val().trim();
+            var service_port = $("#service-port").val().trim();
+            var base_path = $("#base-path").val().trim();
+            var conf_path = $("#conf-path").val().trim();
+            // 提交节点数据
+            $.ajax({
+                url:"{% url 'Opsys:DBMange' %}",
+                type: "POST",
+                dataType: "json",
+                data:{'method':'node','cluster_name':cluster_name,'host_ip':host_ip,'role':role,'service_port':service_port,'base_path':base_path,'conf_path':conf_path},
+                success:function (args) {
+                    if(args.result){
+                        window.location.reload();
+                    }else {
+                       var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                       $(location).prop('href',url);
+                    }
+                }
+            });
+        }else if(modal_title === '删除数据库节'){
+            var cluster_name = $("#md-modal .hide").text().trim();
+            var host_ip = $("#host-ip").val().trim();
+            // 提交数据到后台删除节点
+            $.ajax({
+                url:"{% url 'Opsys:DBMange' %}",
+                type: "POST",
+                dataType: "json",
+                data: {'method':'del_node','cluster_name':cluster_name,'host_ip': host_ip},
+                success:function (args) {
+                    if(args.result){
+                        window.location.reload();
+                    }else {
+                       var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                       $(location).prop('href',url);
+                    }
+                }
+            });
+        }
+    });
+
+  </script>
+{% endblock %}

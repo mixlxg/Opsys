@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% block css %}
+  <style>
+     table a:link{
+      text-decoration: none;
+      font-size: 18px;
+      }
+  .select_top{
+    margin-top: 40px;
+    }
+    .modal_label{
+    font-weight: normal !important;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <form class="form-inline select_top">
+        <div class="col-md-3 ">
+          <button class="btn btn-primary" type="button" id="add-host-btn">添加</button>
+        </div>
+        <div class="col-md-4 pull-right">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="ip地址">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="button" id="btn-select-ip">查询</button>
+            </span>
+          </div>
+        </div>
+      </form>
+  <div>
+  <table class="table table-bordered table-condensed table-hover" id="host-m-table">
+    <thead>
+      <tr class="info">
+        <td>iP地址</td>
+        <td>root密码</td>
+        <td>
+          <i class="fa fa-wrench" aria-hidden="true"></i>
+        </td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="modal fade " tabindex="-1" role="dialog" id="md-modal">
+    <div class="modal-dialog " role="document">
+      <div class="modal-content">
+        <div class="modal-header alert alert-info">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">添加主机信息</h4>
+        </div>
+        <div class="modal-body text-center row" >
+          <form class="form-horizontal">
+            <div>
+              <div class="col-md-5">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label modal_label">Ip地址</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5">
+                <div class="form-group">
+                  <label  class="col-sm-4 control-label modal_label">root密码</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control">
+                  </div>
+              </div>
+               </div>
+              <div class="col-md-2">
+                 <div class="form-group">
+                  <div class="col-sm-8">
+                    <button type="button" class="btn btn-info" id="btn-add">
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                 </div>
+              </div>
+            </div>
+          </form>
+          <div class="col-sm-offset-2 col-sm-8 text-center">
+            <span id="error_mess"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary">确定</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <div class="modal fade " tabindex="-1" role="dialog" id="md-modal-modify">
+    <div class="modal-dialog " role="document">
+      <div class="modal-content">
+        <div class="modal-header alert alert-info">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body text-center" >
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label for="mip" class="col-sm-2 control-label modal_label">IP地址</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="mip"  readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="mpasswd" class="col-sm-2 control-label modal_label">root密码</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="mpasswd">
+              </div>
+            </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary">确定</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  {% include 'alert_modal.html' %}
+  {% include 'sure_modal.html' %}
+{% endblock %}
+
+{% block script %}
+  <script>
+   $("#hostSettings").collapse('show');
+   var host_data
+   function createtbody(id,mes) {
+        $("#"+id + " tbody").empty();
+        var per_page_num = 10;
+        if ($('#'+id+'+ nav').length ==0){
+            $('#'+id).parent().append('<nav aria-label="Page navigation" class="text-center"><ul></ul></nav>');
+        }
+        if (mes.length > per_page_num){
+            $('#'+id+'+ nav').children('ul').empty();
+            $.each(mes.slice(0,per_page_num),function (i,k) {
+                 $("#"+id + " tbody").append(
+                    '<tr><td>'+ k.ip +'</td><td>'+ k.root_password + '</td><td><a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+                )
+            })
+            var options = {
+            bootstrapMajorVersion:3,
+            currentPage: 1,
+            totalPages: Math.ceil(mes.length/per_page_num),
+            numberOfPages:7,
+            size:"normal",
+            itemTexts: function (type, page, current) {
+                      switch (type) {
+                      case "first":
+                          return "首页";
+                      case "prev":
+                          return "上一页";
+                      case "next":
+                          return "下一页";
+                      case "last":
+                          return "尾页";
+                      case "page":
+                          return page;
+                      }
+                  },
+            onPageClicked:function (e,originalEvent,type,page) {
+              $("#"+id + " tbody").empty();
+              $.each(mes.slice((page-1)*per_page_num,page*per_page_num),function (i,k) {
+                $("#"+id + " tbody").append(
+                    '<tr><td>'+ k.ip +'</td><td>'+ k.root_password + '</td><td><a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+                  )
+              })
+            }
+           }
+            $('#'+id+'+ nav').children('ul').bootstrapPaginator(options);
+        }else{
+            $('#'+id+'+ nav').children('ul').empty();
+            $.each(mes,function (i,k) {
+                $("#"+id + " tbody").append(
+                    '<tr><td>'+ k.ip +'</td><td>'+ k.root_password + '</td><td><a class="fa fa-pencil-square-o text-info" aria-hidden="true" href="jacascript:void(0)"></a><a class="fa fa-window-close  text-danger" aria-hidden="true" href="jacascript:void(0)"></a></td></tr>'
+                )
+            })
+        }
+
+    }
+   $.ajax({
+       url:"{% url 'Opsys:HostManageM' %}",
+       async:false,
+       dataType:"json",
+       type:"GET",
+       success:function (args) {
+           if (args.result){
+              host_data=args.data
+                createtbody('host-m-table',host_data);
+           }else {
+               var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString()
+               $(location).prop('href',url);
+           }
+       }
+   })
+  //搜索框绑定事件
+  $("#btn-select-ip").click(function () {
+      var ip=$(this).parent().prev().val()
+      var tmp_array=[]
+      $.each(host_data,function (i,k) {
+          if(k.ip.includes(ip)){
+              tmp_array.push(k);
+          }
+      })
+      createtbody("host-m-table",tmp_array);
+  })
+  //添加主机按钮事件绑定
+  $("#add-host-btn").click(function () {
+      $("#md-modal .modal-body form").children().slice(1,).remove();
+      $("#md-modal .modal-body form").first().find("input").prop("value","");
+      $("#md-modal").modal('show');
+
+  })
+  $("#btn-add").click(function () {
+      $clone_ele=$(this).parent().parent().parent().parent().clone(false)
+      $clone_ele.find("input").prop("value","");
+      $clone_ele.find("button").empty().append("<i class=\"fa fa-minus\" aria-hidden=\"true\"></i>").addClass("my-minus")
+      $("#md-modal .modal-body form").append($clone_ele);
+  })
+  $("#md-modal .modal-body form").on('click','button.my-minus',function () {
+      $(this).parent().parent().parent().parent().remove();
+  })
+  $("#md-modal .modal-footer button.btn-primary").click(function () {
+      var tmp_array=[]
+      $("#md-modal .modal-body form").children().each(function () {
+          var ip=$(this).find("input").get(0).value
+          var passwd=$(this).find("input").get(1).value
+          if(ip && passwd){
+            tmp_array.push({'ip':ip,'root_password':passwd});
+          }
+      })
+      if (tmp_array.length == 0){
+            $("#error_mess").text('ip地址或者密码不能为空');
+            $("#error_mess").css('color','red');
+          }else {
+          $.ajax({
+              url:"{% url 'Opsys:HostManageM' %}",
+              dataType: "json",
+              type:"POST",
+
+              data:{'action_type':'add','data':JSON.stringify(tmp_array)},
+              success:function (args) {
+                  if(args.result){
+                      if(args.exists_host.length == 0){
+                          host_data=tmp_array.concat(host_data)
+                          createtbody('host-m-table',host_data);
+                          $("#md-modal").modal('hide');
+                      }else {
+                          $("#alert_erorr_content").text(args.exists_host.join(',')+"已经存在不用添加");
+                          $("#md-modal").modal('hide');
+                          $("#alert-model").modal('show')
+                          $.each(tmp_array,function (i,k) {
+                              if(args.exists_host.includes(k.ip)){
+                                  console.log(k)
+                              }else {
+                                  host_data.unshift(k);
+                              }
+                          })
+                          createtbody('host-m-table',host_data);
+                      }
+                  }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                      $(location).prop('href',url);
+                  }
+              }
+          })
+      }
+  })
+  $("#host-m-table tbody").on("click","a.fa-pencil-square-o",function () {
+    var ip=$(this).parent().siblings().get(0).innerText;
+    var password=$(this).parent().siblings().get(1).innerText;
+    $("#md-modal-modify .modal-title").text("修改"+ip+"信息");
+    $("#md-modal-modify form").find("input").prop("value","");
+    $("#mip").val(ip);
+    $("#mpasswd").val(password);
+    $("#md-modal-modify").modal('show');
+  });
+  $("#md-modal-modify .modal-footer .btn-primary").click(function () {
+      var ip=$("#mip").val();
+      var passwd = $("#mpasswd").val()
+      $.ajax({
+          url:"{% url 'Opsys:HostManageM' %}",
+          type:"POST",
+          dataType:"json",
+          data:{"action_type":"update","data":JSON.stringify({"ip":ip,"root_passwd":passwd})},
+          success:function (args) {
+              console.log(args);
+              if(args.result){
+                  window.location.reload();
+              }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString()
+                $(location).prop('href',url);
+              }
+          }
+      })
+  });
+  $("#host-m-table tbody").on("click","a.fa-window-close",function () {
+      var ip = $(this).parent().siblings().get(0).innerText;
+      $("#alert_content").text("确认要删除ip"+ip+"吗？");
+      $("#is-sure-model").modal('show');
+      $("#is-sure-model .modal-footer .btn-primary").click(function () {
+          $.ajax({
+              url:"{% url 'Opsys:HostManageM' %}",
+              dataType:"json",
+              type:"POST",
+              data:{"action_type":"delete","data":JSON.stringify({"ip":ip})},
+              success:function (args) {
+                  console.log(args)
+                  if(args.result){
+                      if(args.exists_service.length > 0){
+                          $("#is-sure-model").modal('hide');
+                          $("#alert_erorr_content").text(ip+"还有如下服务在运行："+ args.exists_service.join(","))
+                          $("#alert-model").modal("show");
+                      }else {
+                          window.location.reload();
+                      }
+
+                  }else {
+                      var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString()
+                      $(location).prop('href',url);
+                  }
+              }
+          })
+      })
+  })
+
+  </script>
+{% endblock %}

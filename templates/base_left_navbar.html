@@ -1,0 +1,68 @@
+<div class="col-md-2 content-left" >
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#systemSetting" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-cog" aria-hidden="true">&nbsp;系统管理</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="systemSetting" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:usermanagement' %}"><i class="fa fa-user-o" aria-hidden="true"></i> 用户管理</a></li>
+              <li><a href="{% url 'Opsys:usermanagementRole' %}"><i class="fa fa-id-card-o" aria-hidden="true"></i> 角色管理</a></li>
+              <li><a href="{% url 'Opsys:permissions' %}"><i class="fa fa-gavel" aria-hidden="true"></i> 权限管理</a></li>
+            </ul>
+          </div>
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#hostSettings" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-desktop">&nbsp;主机管理</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="hostSettings" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:HostManage' %}"><i class="fa fa-desktop" aria-hidden="true"></i> 主机信息</a></li>
+              <li><a href="{% url 'Opsys:HostManageM' %}"><i class="fa fa-cogs" aria-hidden="true"></i> 主机管理</a></li>
+                <li><a href="{% url 'Opsys:HostChangePassword' %}"><i class="fa fa-eraser" aria-hidden="true"></i> 主机密码修改</a></li>
+            </ul>
+          </div>
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#containerSettings" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-th-large">&nbsp;中间件管理</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="containerSettings" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:Application' %}"><i class="fa fa-leaf" aria-hidden="true"></i> 应用管理</a></li>
+              <li><a href="{% url 'Opsys:ZkKafka' %}"><i class="fa fa-list" aria-hidden="true"></i> ZK/KAFKA管理</a></li>
+              <li><a href="{% url 'Opsys:ReidsMange' %}"><i class="fa fa-cube" aria-hidden="true"></i> Redis管理</a></li>
+              <li><a href="{% url 'Opsys:DBMange' %}"><i class="fa fa-database" aria-hidden="true"></i> 数据库管理</a></li>
+            </ul>
+         </div>
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#deploySettings" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-list-ul">&nbsp;应用发布管理</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="deploySettings" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:DeployTimeControl' %}"><i class="fa fa-calendar" aria-hidden="true"></i> 发布时间管理</a></li>
+              <li><a href="{% url 'Opsys:DeployJenkinsLock' %}"><i class="fa fa-lock" aria-hidden="true"></i> Jenkins锁管理</a></li>
+              <li><a href="{% url 'Opsys:DeployManage' %}"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> 上线申请管理</a></li>
+              <li><a href="{% url 'Opsys:DeployOrderDownload' %}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> 上线单下载</a></li>
+            </ul>
+          </div>
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#hostpowerMange" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-server">&nbsp;主机权限申请</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="hostpowerMange" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:HostPowerQuery' %}"><i class="fa fa-bar-chart" aria-hidden="true"></i> 权限查询</a></li>
+              <li><a href="{% url 'Opsys:HostPowerApply' %}"><i class="fa fa-gamepad" aria-hidden="true"></i> 主机权限申请</a></li>
+              <li><a href="{% url 'Opsys:HostPowerApplyManager' %}"><i class="fa fa-ravelry" aria-hidden="true"></i> 权限管理</a></li>
+            </ul>
+          </div>
+          <div class="col-md-12 sidebar" style="border-bottom: black solid 1px">
+            <a href="#dbsqlpowerapply" class="nav-header collapsed" data-toggle="collapse">
+              <i class="fa fa-database">&nbsp;SQL执行权限管理</i>
+              <span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+            </a>
+            <ul id="dbsqlpowerapply" class="nav nav-list collapse secondmenu">
+              <li><a href="{% url 'Opsys:DbSqlApply' %}"><i class="fa fa-lemon-o" aria-hidden="true"></i> sql执行权限申请</a></li>
+            </ul>
+          </div>
+</div>

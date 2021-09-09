@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <link href="{% static 'plugin/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" media="screen">
+  <style>
+   .btn-margin {
+       margin-top: 5px;
+       margin-left: 5px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+   .modal_label{
+      font-weight: normal !important;
+    }
+   .tab-top{
+      border: #2aabd2 solid 1px;
+      margin-top: 100px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+    {% include 'host-application-apply-top.html' %}
+    <div class="tab-top bg-danger">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="start_time" class="col-md-2 control-label modal_label">开始时间</label>
+            <div class="input-group date form_datetime col-md-8" data-link-field="start_time" >
+              <input class="form-control" type="text" id="start_time" placeholder="必填">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="end_time" class="col-md-2 control-label modal_label">结束时间</label>
+            <div class="input-group date form_datetime col-md-8" data-link-field="end_time">
+              <input class="form-control" type="text" id="end_time" placeholder="必填">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+              <label for="project_name" class="col-sm-2 control-label modal_label">项目归属</label>
+              <div class="col-sm-2">
+                  <select class="form-control" id="project_name">
+                  </select>
+              </div>
+              <label for="service_name" class="col-sm-2 control-label modal_label">添加服务</label>
+              <div class="col-sm-4">
+                  <div class="input-group">
+                    <select class="form-control" id="service_name">
+                    </select>
+                     <span class="input-group-btn">
+                        <button class="btn btn-info" type="button"><i class="glyphicon glyphicon-ok"></i></button>
+                    </span>
+                  </div>
+              </div>
+          </div>
+          <div class="form-group hide" id="my-hide-service-div">
+            <div class="alert alert-info  col-sm-offset-2 col-sm-7" role="alert">
+                <button type="button" class="close"  aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="service_name_btn">
+                </div>
+            </div>
+
+          </div>
+          <div class="form-group">
+            <label for="reason" class="col-md-2 control-label modal_label">申请原因</label>
+            <div class="input-group col-sm-8" >
+                <textarea  class="form-control" rows="2" id="reason" placeholder="必填"></textarea>
+            </div>
+          </div>
+          <div class="form-group" id="commit-btn">
+            <div class="col-sm-offset-3 col-sm-3">
+              <button type="button" class="btn btn-primary btn-block">提交申请</button>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn btn-danger btn-block">重置</button>
+            </div>
+          </div>
+        </form>
+    </div>
+    {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugin/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js'%}" charset="UTF-8"></script>
+  <script>
+    $("#hostpowerMange").collapse('show');
+    $("#host-power-apply").addClass("active");
+    $('.form_datetime').datetimepicker({
+      language:  'zh-CN',
+      weekStart: 1,
+      todayBtn:  1,
+      autoclose: 1,
+      todayHighlight: 1,
+      forceParse: 0,
+      startView: 2,
+      showMeridian: 1,
+      format: "yyyy-mm-dd hh:mm:ss"
+      });
+    // 定义一个全局变量用于存放所有的服务信息
+    var service_data;
+    // 获取数据
+    $.ajax({
+        url: "{% url 'Opsys:HostPowerApply' %}",
+        type: "GET",
+        dataType: "json",
+        async: false,
+        success: function (args) {
+            if(args.result){
+                service_data = args.data;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 填充项目归属select
+    $.each(service_data,function (project_name,service_list) {
+        $("#project_name").append(
+            '<option>'+project_name+'</option>'
+        );
+    });
+    // 填充默认服务select
+    var project_name = $("#project_name").val().trim();
+    $.each(service_data[project_name],function (i,service_name) {
+        $("#service_name").append(
+            '<option>'+service_name+'</option>'
+        );
+    });
+    // 绑定project_name 的change事件
+    $("#project_name").change(function () {
+        var project_name = $("#project_name").val().trim();
+        $("#service_name").empty();
+        $.each(service_data[project_name],function (i,service_name) {
+            $("#service_name").append(
+                '<option>'+ service_name+'</option>'
+            );
+        });
+    });
+    // 绑定添加服务按钮click事件
+    $(".glyphicon-ok").parent().click(function () {
+        var service_name = $("#service_name").val().trim();
+        $("#my-hide-service-div").removeClass("hide");
+        $(".service_name_btn").append(
+            '<button type="button" class="btn btn-danger btn-xs btn-margin">'+service_name+'</button>'
+        );
+    });
+    // 绑定服务框里面的close 按钮 click事件
+    $("#my-hide-service-div .close").click(function () {
+        $(".service_name_btn").empty();
+        $("#my-hide-service-div").addClass("hide");
+    });
+    // 绑定重置按钮click事件
+    $("#commit-btn .btn-danger").click(function () {
+        // 清空开始时间input
+        $("#start_time").val('');
+        // 清空结束时间input
+        $("#end_time").val('');
+        // 清空服务名div里面的btn 并隐藏alert
+        $(".service_name_btn").empty();
+        $("#my-hide-service-div").addClass("hide");
+        //清空申请理由
+        $("#reason").val('');
+    });
+    //绑定提交申请单click事件
+    $("#commit-btn .btn-primary").click(function () {
+        // 获取开始时间数据
+        var start_time=$("#start_time").val().trim();
+        var end_time=$("#end_time").val().trim();
+        var reason = $("#reason").val().trim();
+        var service_arry = [];
+        $(".service_name_btn").children().each(function () {
+            service_arry.push($(this).text().trim());
+        });
+        if(start_time !== '' && end_time !== ''&& reason !=='' && service_arry.length !== 0){
+            $.ajax({
+                url: "{% url 'Opsys:HostPowerApply' %}",
+                type: "POST",
+                dataType: "json",
+                data: {'service_name':service_arry.join(','),'start_time':start_time,'end_time':end_time,'reason':reason},
+                success: function (args) {
+                    if (args.result){
+                        // 清空开始时间input
+                        $("#start_time").val('');
+                        // 清空结束时间input
+                        $("#end_time").val('');
+                        // 清空服务名div里面的btn 并隐藏alert
+                        $(".service_name_btn").empty();
+                        $("#my-hide-service-div").addClass("hide");
+                        //清空申请理由
+                        $("#reason").val('');
+                    }else {
+                        var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                        $(location).prop('href',url);
+                    }
+                }
+            });
+        }else {
+            $("#modal-min-close .modal-body").text("必填项不能为空，请重新填表单");
+            $("#modal-min-close").modal('show');
+        }
+    });
+
+  </script>
+{% endblock %}

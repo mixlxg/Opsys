@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 20px;
+    }
+    td{
+      display:table-cell;
+      vertical-align:middle !important;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'deploy-apply-top.html' %}
+  <div>
+    <table class="table table-bordered table-hover tab-top text-center" id="deploy-table">
+      <thead class="bg-success">
+        <tr>
+          <td>发布ID</td>
+          <td>项目名</td>
+          <td style="width: 140px;">
+            <select class="form-control need-date">
+              <option>发布时间</option>
+            </select>
+          </td>
+          <td>组审批人</td>
+          <td>审批结果</td>
+          <td>领导审批</td>
+          <td>审批结果</td>
+          <td>
+            <i class="fa fa-cogs" aria-hidden="true"></i>
+          </td>
+          <td>状态</td>
+          <td>结果</td>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  {% include 'modal-md-close.html' %}
+  {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+  $("#deploySettings").collapse('show');
+  $("#deploy").addClass('active');
+  // 定义一个全局的变量 data
+  var data;
+  // 定义一个全局myclock
+  var myclock;
+  // 定义一个生成table tr的函数
+  function createtr(kwargs){
+    mtr = '<tr><td>'+kwargs.id+'</td><td>'+kwargs.project_name+'</td><td>'+kwargs.deploy_start_time.replace(/T/g," ")+'</td><td>'+
+           kwargs.groupleader_name+'</td><td>'
+    if (kwargs.groupleader_agree == ""){
+        mtr = mtr + '待审批</td><td>'+kwargs.twolevelLeader_name+'</td><td>'+kwargs.twolevelLeader_agree+'</td><td>'
+    }else {
+        mtr = mtr + kwargs.groupleader_agree + '</td><td>'+ kwargs.twolevelLeader_name+'</td><td>'
+        if (kwargs.groupleader_agree=="不同意"){
+            mtr = mtr +kwargs.twolevelLeader_agree+'</td><td>'
+        }else {
+            if (kwargs.twolevelLeader_agree == ""){
+                mtr = mtr +'待审批</td><td>'
+            }else {
+                mtr = mtr +kwargs.twolevelLeader_agree+'</td><td>'
+            }
+        }
+    }
+    mtr = mtr+ '<a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a> '
+    if (kwargs.groupleader_agree == '同意' && kwargs.twolevelLeader_agree == '同意'){
+        mtr = mtr + '<button type="button" class="btn btn-danger btn-xs">发布</button>'
+    }
+    if (kwargs.build_id ==0){
+        mtr=mtr+'</td><td>待发布</td><td></td></tr>'
+    }else if (kwargs.build_id > 0 && kwargs.deploy_result ==""){
+        mtr=mtr+'</td><td class="loading03"></td><td></td></tr>'
+    }else {
+        mtr=mtr+'</td><td>'+kwargs.deploy_result+'</td><td><button type="button" class="btn btn-success btn-xs">结果</button></td></tr>'
+    }
+    return mtr
+  }
+  // 填充发日期
+  $.ajax({
+      url:"{% url 'Opsys:DeployProject' %}",
+      type:"GET",
+      dataType:"json",
+      data:{need_date:true},
+      async:false,
+      success:function (args) {
+          if(args.result){
+              $.each(args.data,function (i,iv) {
+                   $("#deploy-table thead .need-date").append(
+                       '<option>'+iv+'</option>'
+                   )
+              })
+
+          }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+          }
+      }
+  })
+  // 填充点开链接默认数据，为最新日期的数据
+  var last_date = $('.need-date').children().eq(1).val();
+  function myclfunc(ndate){
+      $.ajax({
+      url:"{% url 'Opsys:DeployProject' %}",
+      dataType: "json",
+      type:"POST",
+      data:{need_date:ndate},
+      success:function (args) {
+          if(args.result){
+              data = args.data;
+              console.log(data)
+              normalcreatetbody('deploy-table',data,20,createtr)
+          }else {
+              var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+              $(location).prop('href',url);
+          }
+      }
+  })
+  }
+  myclfunc(last_date);
+  myclock = setInterval(function () {myclfunc(last_date)}, 20000);
+  // 绑定eye click事件
+  $("#deploy-table tbody").on("click","a.fa-eye",function () {
+      var id=$(this).parent().siblings().eq(0).text();
+      var project_name = $(this).parent().siblings().eq(1).text();
+      $("#modal-md-close .modal-title").text(project_name+"发布详细信息");
+      $("#modal-md-close .modal-body").empty();
+      $("#modal-md-close .modal-body").append(
+          '<table class="table table-bordered table-hover"><tbody></tbody></table>'
+      );
+      $.each(data,function (i,iv) {
+          if (iv.id == parseInt(id)){
+              var tamper_resistant_start_time= iv.tamper_resistant_start_time ? iv.tamper_resistant_start_time.replace(/T/g," "):null;
+              var tamper_resistant_end_time=iv.tamper_resistant_end_time ? iv.tamper_resistant_end_time.replace(/T/g," "):null;
+              var really_deploy_time=iv.really_deploy_time ? iv.really_deploy_time.replace(/T/g," "):null;
+              $("#modal-md-close .modal-body tbody").append(
+                  '<tr><td>需求内容</td><td>'+iv.workorderneeds__need_content+'</td></tr>'+
+                  '<tr><td>项目经理</td><td>'+iv.workorderneeds__product_manager_name + '</td></tr>'+
+                  '<tr><td>上线日期</td><td>'+iv.workorderneeds__deploy_time + '</td></tr>'+
+                  '<tr><td>项目所属</td><td>'+iv.project_class+'</td></tr>'+
+                  '<tr><td>服务名称</td><td>'+iv.project_name+'</td></tr>'+
+                  '<tr><td>发布人</td><td>' + iv.deploy_username+'</td></tr>'+
+                  '<tr><td>防窜改开始时间</td><td>' + tamper_resistant_start_time +'</td></tr>'+
+                  '<tr><td>防篡改结束时间</td><td>'+ tamper_resistant_end_time +'</td></tr>'+
+                  '<tr><td>代码审核人</td><td>'+iv.code_verify_name+'</td></tr>'+
+                  '<tr><td>研发人员</td><td>'+iv.developers_name+'</td></tr>'+
+                  '<tr><td>测试人员</td><td>'+iv.tester_name+'</td></tr>'+
+                  '<tr><td>是否运维留守</td><td>'+iv.db_op+'</td></tr>'+
+                  '<tr><td>运维留守原因</td><td>'+iv.operation_need_reasons+'</td></tr>'+
+                  '<tr><td>发布开始时间</td><td>'+iv.deploy_start_time.replace(/T/g," ")+'</td></tr>'+
+                  '<tr><td>发布结束时间</td><td>'+iv.deploy_end_time.replace(/T/g," ") +'</td></tr>'+
+                  '<tr><td>真实发布开始时间</td><td>' + really_deploy_time +'</td><tr>'
+              );
+              return false;
+          }
+      });
+      $("#modal-md-close").modal('show');
+  });
+  // 绑定 发布的click事件
+  $("#deploy-table tbody").on("click",".btn-danger",function () {
+      var id = $(this).parent().siblings().eq(0).text();
+      var job_name = $(this).parent().siblings().eq(1).text();
+      var obj = $(this);
+      clearInterval(myclock);
+      $.ajax({
+          url:"{% url 'Opsys:SubmitDeployJob' %}",
+          type: "POST",
+          dataType: "json",
+          data: {'id': id,'job_name': job_name},
+          beforeSend:function(){
+              obj.parent().siblings().eq(7).addClass("loading03").text("");
+          },
+          success:function (args) {
+              if(args.result == false){
+                obj.parent().siblings().eq(7).removeClass("loading03");
+                obj.parent().siblings().eq(7).text("失败");
+                $("#modal-min-close .modal-body").text(args.error_mess);
+                $("#modal-min-close").modal("show");
+              }
+              myclock = setInterval(function () {myclfunc(last_date)}, 20000);
+          }
+      })
+  });
+  // 绑定查看结果的按钮事件
+  $("#deploy-table tbody").on("click",".btn-success",function () {
+    var id = $(this).parent().siblings().eq(0).text();
+    $.ajax({
+       url:"{% url 'Opsys:QueryJobsResult' %}",
+       dataType:"json",
+       type:"GET",
+       data:{'id':id},
+       success:function (args) {
+           $("#modal-md-close .modal-body").empty();
+           $("#modal-md-close .modal-body").html(args.data);
+           $("#modal-md-close").modal('show');
+       }
+    });
+  })
+  // 选择日期select的change事件
+  $(".need-date").change(function () {
+      var need_date = $(this).val();
+      if (need_date != "发布时间"){
+          clearInterval(myclock)
+          last_date = need_date;
+          myclfunc(last_date);
+          myclock = setInterval(function () {myclfunc(last_date)}, 20000);
+      }
+  })
+
+  </script>
+{% endblock %}

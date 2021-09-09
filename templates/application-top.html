@@ -1,0 +1,10 @@
+  <ul class="nav nav-tabs nav-justified " style="margin-top: 30px;">
+    <li role="presentation" id="application-mess"><a href="{% url 'Opsys:Application' %}">应用查询</a></li>
+    {% if role_name == 'admin' %}
+        <li role="presentation" id="application-restart" ><a href="{% url 'Opsys:ApplicationRestart' %}">应用重启</a></li>
+        <li role="presentation" id="application-manage"><a href="{% url 'Opsys:ApplicationManage' %}">应用管理</a></li>
+        <li role="presentation" id="application-new-online"><a href="{% url 'Opsys:ApplicationNewOnline' %}">应用上线</a></li>
+        <li role="presentation" id="application-offline"><a href="{% url 'Opsys:ApplicationOffline' %}">应用下线</a></li>
+        <li role="presentation" id="application-yj"><a href="{% url 'Opsys:ApplicationYJ' %}">应用应急处理</a></li>
+    {% endif %}
+  </ul>

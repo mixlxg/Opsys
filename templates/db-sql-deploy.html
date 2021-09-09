@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+    table a:link{
+      text-decoration: none;
+      font-size: 20px;
+    }
+    td{
+      display:table-cell;
+      vertical-align:middle !important;
+    }
+   </style>
+{% endblock %}
+{% block content %}
+  {% include 'db-sql-apply-top.html' %}
+  <div>
+    <table class="table table-bordered table-condensed table-hover tab-top text-center" id="deploy-table">
+      <thead class="bg-danger">
+        <tr>
+          <td>ID</td>
+          <td>申请人</td>
+          <td>申请原因</td>
+          <td style="width: 140px;">
+            <select class="form-control">
+              <option>申请日期</option>
+            </select>
+          </td>
+          <td>组长</td>
+          <td>组长审批结果</td>
+          <td>DBA审批结果</td>
+          <td>
+            <i class="fa fa-cogs" aria-hidden="true"></i>
+          </td>
+          <td>状态</td>
+          <td>结果</td>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal fade" tabindex="-1" role="dialog" id="modal-login">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+  </div>
+  {% include 'modal-md-close.html' %}
+
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+  $("#dbsqlpowerapply").collapse('show');
+  $("#db-sql-deploy").addClass('active');
+  // 定义一个临时变量用于存放全家数据
+  var data;
+  // 定义创建表格函数
+  function createTableFuc(mes){
+      var tr_mes = '<tr><td>'+mes['id']+'</td><td>'+mes['username']+'</td><td>'+mes['apply_reson']+'</td><td>'+mes['apply_time']+'</td><td>'+mes['group_leader']+'</td><td>';
+      if(mes['group_leader_agree'] == ""){
+          tr_mes = tr_mes+'待审批</td><td>待审批</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td>待执行</td><td></td></tr>';
+          return tr_mes
+      }else if(mes['group_leader_agree']== '不同意'){
+          tr_mes = tr_mes+'不同意</td><td></td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td></td><td></td></tr>';
+          return tr_mes
+      }else {
+          tr_mes = tr_mes+'同意</td><td>';
+          if(mes['dba_agree'] =="" &&  mes['is_dba_exec'] ==""){
+              tr_mes = tr_mes + '待审批</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td>待执行</td><td></td></tr>';
+              return tr_mes
+          }else if(mes['dba_agree'] =="" &&  mes['is_dba_exec'] =="是"){
+
+              tr_mes = tr_mes + '同意</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td>DBA执行</td><td><button type="button" class="btn btn-info btn-xs">原因</button>&nbsp;';
+              if(mes['is_success']==''){
+                  tr_mes=tr_mes+'</td></tr>'
+              }else {
+                  tr_mes=tr_mes+'<button type="button" class="btn btn-info btn-xs">结果</button></td></tr>'
+              }
+              return tr_mes
+          }else if(mes['dba_agree'] =='不同意'){
+              tr_mes = tr_mes +'不同意</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a></td><td></td><td><button type="button" class="btn btn-info btn-xs">原因</button></td></tr>';
+              return tr_mes
+          }else if(mes['dba_agree'] == '同意'){
+              tr_mes = tr_mes+'同意</td><td><a class="fa fa-eye" aria-hidden="true" href="jacascript:void(0)"></a>';
+              if(mes['is_success'] == ''){
+                  tr_mes = tr_mes+'<button type="button" class="btn btn-danger btn-xs">执行</button></td><td>待执行</td><td></td></tr>';
+                  return tr_mes
+              }else{
+                  tr_mes = tr_mes+'</td><td>'+mes['is_success']+'</td><td><button type="button" class="btn btn-info btn-xs">结果</button></td></tr>';
+                  return tr_mes
+              }
+          }
+      }
+  }
+  // 获取日期
+  $.ajax({
+      url: "{% url 'Opsys:SqlOrderRelease' %}",
+      type: "GET",
+      dataType: "json",
+      data:{"method":"get_date"},
+      success:function (args) {
+        if(args.result){
+            // 填充申请日期select
+            $.each(args.data,function (index,ndate) {
+                $("#deploy-table .form-control").append(
+                    '<option>'+ndate+'</option>'
+                );
+            });
+        }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+        }
+      }
+  });
+  // 获取sql执行数据
+  $.ajax({
+      url:"{% url 'Opsys:SqlOrderRelease' %}",
+      type: "GET",
+      dataType: "json",
+      data:{'method':'get_ndate'},
+      async: false,
+      success:function (args) {
+          if(args.result){
+              data=args.data;
+          }else {
+            var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+            $(location).prop('href',url);
+          }
+      }
+  });
+  // 创建默认初始值
+  normalcreatetbody("deploy-table",data,10,createTableFuc);
+  // 日期选择的change事件
+  $("#deploy-table .form-control").change(function () {
+    // 获取选择日期的数据
+    var ndate = $(this).val().trim();
+    if (ndate != '申请日期'){
+        $.ajax({
+            url:"{% url 'Opsys:SqlOrderRelease' %}",
+            type: "GET",
+            dataType: "json",
+            data:{'method':'get_ndate','ndate':ndate},
+            success:function (args) {
+                if (args.result){
+                    data = args.data;
+                    normalcreatetbody("deploy-table",data,10,createTableFuc);
+                }else {
+                   var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                   $(location).prop('href',url);
+                }
+            }
+        });
+    }
+  });
+  // 绑定查看详细信息的按钮
+  $("#deploy-table tbody").on('click','.fa-eye',function () {
+      var id = $(this).parent().siblings().eq(0).text();
+      $("#modal-md-close .modal-body tbody").empty();
+      // 从data变量中取出数据
+      $.each(data,function (i,sql_mes) {
+          if(sql_mes['id'] == id){
+              $("#modal-md-close .modal-title").text(sql_mes['apply_reson']+'--详情');
+              $("#modal-md-close .modal-body tbody").append(
+                  '<tr><td>数据库集群名</td><td>'+sql_mes['cluster_name']+'</td></tr>'+
+                  '<tr><td>schema名</td><td>'+sql_mes['schema_name']+'</td></tr>'+
+                  '<tr><td>申请时间</td><td>'+sql_mes['apply_time']+'</td></tr>'+
+                  '<tr><td>sql语句</td><td>'+sql_mes['sql'].replace(/;/g,";<br>")+'</td></tr>'+
+                  '<tr><td>是否执行成功</td><td>'+sql_mes['is_success']+'</td></tr>'+
+                  '<tr><td>开始执行时间</td><td>'+sql_mes['start_exec_time']+'</td></tr>'+
+                  '<tr><td>结束执行时间</td><td>'+sql_mes['end_exec_time']+'</td></tr>'
+              );
+          }
+          $("#modal-md-close").modal('show');
+      });
+  });
+  // 绑定查看结果按钮
+  $("#deploy-table tbody").on('click','.btn-info',function () {
+      var content = $(this).text().trim();
+      var id = $(this).parent().siblings().eq(0).text().trim();
+      var mes;
+      $.each(data,function (i,sql_mes) {
+        if (sql_mes['id'] == id){
+            mes = sql_mes;
+        }
+      });
+      if(content == '结果'){
+        $("#modal-md-close .modal-title").text("查看结果:");
+        $("#modal-md-close .modal-body tbody").empty();
+        $("#modal-md-close .modal-body tbody").append(
+            '<tr><td>结果</td><td>'+mes['is_success']+'</td></tr>'+
+            '<tr><td>执行过程</td><td>'+mes['result']+'</td></tr>'
+        );
+      }else if(content =='原因'){
+        $("#modal-md-close .modal-title").text("查看原因:");
+        $("#modal-md-close .modal-body tbody").empty();
+        $("#modal-md-close .modal-body tbody").append(
+
+            '<tr><td>原因</td><td>'+mes['dba_not_agree_reson']+'</td></tr>'
+        );
+      }
+      $("#modal-md-close").modal('show');
+  });
+  // 绑定执行sql按钮事件
+  $("#deploy-table tbody").on('click','.btn-danger',function () {
+      var id = $(this).parent().siblings().eq(0).text().trim();
+      $.ajax({
+          url:"{% url 'Opsys:SqlExc' %}",
+          type: "POST",
+          dataType: "json",
+          beforeSend:function () {
+            $("#modal-login .modal-body").addClass('loading01');
+          },
+          data:{'id':id},
+          success:function (args) {
+            $("#modal-login .modal-body").removeClass("loading01")
+            if(args.result){
+                window.location.reload();
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+          }
+      })
+      $('#modal-login').modal('show');
+  });
+  </script>
+{% endblock %}

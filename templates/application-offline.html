@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+ {% include 'loading.html' %}
+  <style>
+    .application-top-select{
+      border: #2aabd2 solid 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      opacity: 60%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius:15px;
+    }
+    .modal_label{
+      font-weight: normal !important;
+      margin-left:-20px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  {% include 'application-top.html' %}
+  <div>
+    <div class="col-md-12 application-top-select bg-primary ">
+      <form class="form-horizontal">
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label modal_label" for="project—name">应用归属</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="project—name">
+              </select>
+             </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-sm">
+            <label for="type" class="col-sm-3 control-label modal_label">应用名</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="appname">
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4 col-md-offset-4 top-btn">
+          <button type="button" class="btn btn-warning">应用查询</button>
+          <button type="button" class="btn btn-danger">应用下线</button>
+        </div>
+      </form>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-div-run"></div>
+  </div>
+  {% include "modal-min-close.html" %}
+{% endblock %}
+{% block script %}
+  <script>
+      $("#containerSettings").collapse('show');
+      $("#application-offline").addClass("active");
+      // 创建 静态资源表格函数
+      function staticCreate(appMess) {
+        // 清空已存在的表格
+        $(".tb-div").empty();
+        $(".tb-div").append('<table class="table table-bordered table-hover"><thead class="bg-info"><tr><th>id</th><th>项目名称</th><th>项目状态</th><th>ip地址</th></tr></thead><tbody></tbody></table>');
+        var ip = appMess['ip'];
+        $.each(ip,function (i,oneip) {
+           $(".tb-div tbody").append(
+               '<tr><td>'+(i+1)+'</td><td>'+appMess['service_name']+'</td><td>'+appMess['status']+'</td><td>'+oneip+'</td></tr>'
+           );
+        })
+      }
+      // 创建 动态资源表格函数
+      function createTable(appMess) {
+          // 清空已存在的表格
+          $(".tb-div").empty();
+          $(".tb-div").append('<table class="table table-bordered table-hover"><thead class="bg-info"><tr><th>id</th><th>项目名称</th><th>服务类型</th><th>服务端口</th><th>项目状态</th><th>ip地址</th><th><i class="fa fa-sliders" aria-hidden="true"></i></th></tr></thead><tbody></tbody></table>');
+          var ip =  appMess['ip'];
+          $.each(ip,function (i,oneip) {
+              $(".tb-div tbody").append(
+                  '<tr><td>'+(i+1)+'</td><td>'+appMess['service_name']+'</td><td>'+appMess['type']+'</td><td>'+appMess['service_port']+'</td><td>'+appMess['status']+'</td><td>'+oneip+'</td><td><button type="button" class="btn btn-danger btn-xs">下线</button></td></tr>'
+              );
+          });
+      }
+      // 定义全局变量 data 存放的是应用所有数据
+      var data;
+      // 申明一个拳击的clock定时器变了，用于存放刷新已经提交的任务的列表
+      var myclock;
+      // 创建一个方法用于获取提交任务信息，并生成列表
+      function flushCommitTaskTable(){
+          // 获取全部正在下线的任务数据
+          $.ajax({
+              url:"{% url 'Opsys:ApplicationOfflineQuery' %}",
+              type: "GET",
+              dataType: "json",
+              success:function (margs) {
+                 if(margs.result){
+                     if (margs.data.length !== 0){
+                        // 清空tb-div-run现有的table数据
+                        $(".tb-div-run").empty();
+                        // 创建任务信息展示table
+                        $(".tb-div-run").append(
+                            '<table class="table  table-bordered table-hover table-condensed"><thead class="bg-danger"><tr><td>项目归属</td><td>服务名</td><td>ip地址</td><td>操作人</td><td>操作结果</td></tr></thead><tbody></tbody><table>'
+                        );
+                        console.log(margs);
+                        // 循环添加获取回来的下线数据
+                        $.each(margs.data,function (i,v) {
+                            var result='';
+                            if (v['result'] !=='SUCCESS' && v['result'] !== 'FAILURE'){
+                                result = 'Running';
+                            }else {
+                                result = v['result'];
+                            }
+                            $(".tb-div-run tbody").append(
+                                '<tr><td>'+v['project_name']+'</td><td>'+v['service_name']+'</td><td>'+v['ip']+'</td><td>'+v['username']+'</td><td>'+result+'</td><tr>'
+                            );
+                        });
+                     }
+                 }else {
+                     //console.log(margs)
+                 }
+              }
+          });
+      };
+      flushCommitTaskTable();
+      myclock=setInterval(flushCommitTaskTable,20000)
+      $.ajax({
+          url:"{% url 'Opsys:ApplicationOffline' %}",
+          type:"GET",
+          dataType:"json",
+          async:false,
+          success:function (args) {
+            if (args.result){
+                data = args.data;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+          }
+      });
+      // 填充项目归属select
+      $.each(data,function (pname) {
+        $("#project—name").append(
+            '<option>'+pname+ '</option>'
+        );
+      });
+      // 填充应用默认列表
+      var defalutProjectName = $('#project—name').val().trim();
+      appArr = data[defalutProjectName];
+      $.each(appArr,function (index,appMess) {
+        $('#appname').append(
+            '<option>'+appMess['service_name']+'</option>'
+        );
+      });
+      // project_name 绑定change事件
+      $("#project—name").change(function () {
+        var current_project_name = $("#project—name").val().trim();
+        // 清理掉app select 选择框
+        $('#appname').empty();
+        $.each(data[current_project_name],function (index,appMess) {
+            $('#appname').append(
+                '<option>'+appMess['service_name']+'</option>'
+            );
+        });
+      });
+
+      // 应用查询时间绑定
+      $(".top-btn .btn-warning").click(function () {
+          var project_name = $("#project—name").val().trim();
+          var service_name = $("#appname").val().trim();
+          if(project_name == "静态资源项目"){
+            $.each(data[project_name],function (index, appMess) {
+                if (appMess['service_name'] == service_name){
+                    staticCreate(appMess);
+                    return false;
+                }
+            });
+          }else {
+            $.each(data[project_name],function (index, appMess) {
+                if (appMess['service_name'] == service_name){
+                    createTable(appMess);
+                    return false;
+                }
+            });
+          }
+      });
+      // 提交下线单个节点按钮绑定事件
+      $(".tb-div").on('click','button',function () {
+          // 获取需要post到ApplicationOffline接口的参数
+          var project_name=$("#project—name").val().trim();
+          var service_name=$(this).parent().siblings().eq(1).text().trim();
+          var ip = $(this).parent().siblings().eq(5).text().trim();
+          $.ajax({
+              url: "{% url 'Opsys:ApplicationOffline' %}",
+              type: "POST",
+              dataType: "json",
+              data: {"project_name":project_name,"service_name":service_name,"ip":ip},
+              success:function (args) {
+                if(args.result){
+                    // 刷新一下提交结果，显示刚刚提交的任务
+                    flushCommitTaskTable();
+                }else {
+                    $("#modal-min-close .modal-body").text("点击提交下线此节点任务失败，错误信息："+args['error_mess']);
+                    $("#modal-min-close").modal("show");
+                }
+              }
+          });
+
+      });
+      // 提交 '应用下线' 按钮绑定事件
+      $(".top-btn .btn-danger").click(function () {
+            var project_name = $("#project—name").val().trim();
+            var service_name = $("#appname").val().trim();
+            $.ajax({
+                url: "{% url 'Opsys:ApplicationOffline' %}",
+                type: "POST",
+                dataType: "json",
+                data: {"project_name":project_name,"service_name":service_name},
+                success: function (args) {
+                  if(args.result){
+                         // 刷新一下提交结果，显示刚刚提交的任务
+                        flushCommitTaskTable();
+                    }else {
+                        $("#modal-min-close .modal-body").text("点击提交下线此节点任务失败，错误信息："+args['error_mess']);
+                        $("#modal-min-close").modal("show");
+                    }
+                }
+            });
+      });
+  </script>
+
+{% endblock %}

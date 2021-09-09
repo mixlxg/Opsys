@@ -1,0 +1,11 @@
+  <ul class="nav nav-tabs nav-justified " style="margin-top: 30px;">
+    <li role="presentation" id="db-sql-apply"><a href="{% url 'Opsys:DbSqlApply' %}">SQL写权限申请</a></li>
+    <li role="presentation" id="db-sql-deploy"><a href="{% url 'Opsys:SqlOrderRelease' %}">SQL工单执行</a></li>
+    {% if request.user.get_full_name in group_leader or role == 'admin' %}
+      <li role="presentation"  id="db-sql-groupleader-agree"><a href="{% url 'Opsys:SqlGroupLeaderApprove' %}">组长审批SQL</a></li>
+    {% endif %}
+    {% if role == 'admin' %}
+      <li role="presentation" id="db-sql-dba-agree" ><a href="{% url 'Opsys:SqlDbaApprove' %}">DBA审批SQL</a></li>
+      <li role="presentation" id="db-sql-dba-exc" ><a href="{% url 'Opsys:SqlDbaExc' %}">需DBA执行sql</a></li>
+    {% endif %}
+  </ul>

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <style>
+   .btn-margin {
+       margin-top: 5px;
+       margin-left: 5px;
+    }
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+   .modal_label{
+      font-weight: normal !important;
+    }
+   .tab-top{
+      margin-top: 40px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+    {% include 'host-application-apply-top.html' %}
+    <div>
+    <table class="table table-bordered table-hover table-condensed tab-top text-center" id="order-host-power-tab">
+        <thead class="bg-danger">
+            <tr>
+                <td class="hide">id</td>
+                <td>用户名</td>
+                <td>申请服务</td>
+                <td>申请时间</td>
+                <td>审批状态</td>
+                <td ><li class="fa fa-sliders text-info"></li></td>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+    {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#hostpowerMange").collapse('show');
+    $("#host-power-apply-verify-status").addClass("active");
+    // 定义一个全局变量用于存放所有的服务信息
+    var data;
+    // 定义一个用于分页的函数
+    function create_table_tr(mes){
+        mess = '<tr><td class="hide">'+mes['id']+'</td><td>'+ mes['username']+'</td><td>'+mes['service_name']+'</td><td>'+mes['apply_time'];
+        console.log(mes['is_agree']);
+        if (mes['is_agree'] === null){
+            mess = mess+'</td><td class="text-info">待审批'
+        }else if (mes['is_agree'] === 0){
+            mess = mess+ '</td><td class="text-success">审批成功'
+        }else if (mes['is_agree'] === 1){
+            mess = mess+ '</td><td class="text-danger">拒绝'
+        }else if (mes['is_agree'] ===2){
+            mess = mess + '</td><td class="text-danger" 失败'
+        }
+        mess = mess+'</td><td><a class="fa fa-eye text-info"  href="jacascript:void(0)"></a></td></tr>';
+        return mess
+    }
+    $.ajax({
+        url: "{% url 'Opsys:HostPowerApplyVerifyStatus' %}",
+        type: "GET",
+        dataType: "json",
+        async: false,
+        success: function (args) {
+            if (args.result){
+                data = args.data;
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 生成分页符表格
+    normalcreatetbody("order-host-power-tab",data,20,create_table_tr);
+    // 绑定详细查看eye的click事件
+    $("#order-host-power-tab tbody").on("click",".fa-eye",function () {
+        $("#modal-md-close .modal-title").text("详情");
+        // 清空table里面表格
+        $("#modal-md-close tbody").empty();
+        // 获取当前id对应的数据
+        var id = $(this).parent().siblings().eq(0).text().trim();
+        $.each(data,function (i,value) {
+            if(value['id'] == id){
+                $(".modal-body tbody").append(
+                    '<tr><td>开始时间</td><td>'+value['start_time']+'</td><tr>'+
+                    '<tr><td>结束时间</td><td>'+value['end_time']+'</td><tr>'+
+                    '<tr><td>申请原因</td><td>'+value['apply_reason']+'</td><tr>'+
+                    '<tr><td>审批结果</td><td>'+value['apply_result']+'</td><tr>'
+                );
+                return false
+            }
+        });
+        $("#modal-md-close").modal('show');
+    });
+
+
+  </script>
+{% endblock %}

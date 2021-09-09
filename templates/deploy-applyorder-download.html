@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+  {% include 'loading.html' %}
+  <style>
+    .tab-top{
+      margin-top: 50px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+ <div class="jumbotron tab-top">
+  <form>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button">选择日期</button>
+          </span>
+          <select class="form-control">
+          </select>
+          <span class="input-group-btn">
+            <button class="btn btn-danger" type="button">生成上线单</button>
+          </span>
+        </div><!-- /input-group -->
+      </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+  </form>
+ </div>
+ {% include 'modal-min-close.html' %}
+{% endblock %}
+{% block script %}
+  <script>
+    $("#deploySettings").collapse('show');
+    $(".btn-danger").click(function () {
+        var ndate = $("form select").val();
+        var url = "{% url 'Opsys:DeployOrderDownload' %}" + '?ndate='+ndate
+        if (ndate == null){
+            $("#modal-min-close .modal-title").text("警告提示！");
+            $("#modal-min-close .modal-body").text("没有上线申请不能生成上线单");
+            $("#modal-min-close").modal('show');
+        }else {
+            $.ajax({
+                url: "{% url 'Opsys:DeployOrderDownload' %}",
+                dataType: "json",
+                type: "POST",
+                data:{"ndate": ndate, "op_type": "product"},
+                beforeSend:function () {
+                    $("#modal-min-close .modal-title").text("提示");
+                    $("#modal-min-close .modal-body").text();
+                    $("#modal-min-close .modal-body").addClass("loading01");
+                    $("#modal-min-close").modal('show');
+                },
+                success:function (args) {
+                    if(args.result){
+                        $("#modal-min-close .modal-title").text("提示");
+                        $("#modal-min-close .modal-body").removeClass("loading01");
+                        $("#modal-min-close .modal-body").text("生成上线申请单成功");
+                        $(".order-download").remove();
+                        $(".input-group").append(
+                            '<span class="input-group-btn order-download"><a class="btn btn-primary" href='+ url +'>下载上线单</a></span>'
+                        );
+                    }else {
+                        $("#modal-min-close .modal-title").text("警告");
+                        $("#modal-min-close .modal-body").removeClass("loading01");
+                        $("#modal-min-close .modal-body").text("生成上线申请单失败");
+                    }
+                }
+            })
+        }
+    });
+    $.ajax({
+        url:"{% url 'Opsys:DeployOrderDownload' %}",
+        dataType: "json",
+        type: "GET",
+        success:function (args) {
+            if (args.result){
+                $.each(args.data,function (i,iv) {
+                    $("form select").append(
+                        '<option>' + iv + '</option>'
+                    )
+                });
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    $("form select").change(function () {
+        $(".order-download").remove();
+    });
+  </script>
+{% endblock %}

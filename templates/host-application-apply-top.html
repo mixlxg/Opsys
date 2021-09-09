@@ -1,0 +1,7 @@
+  <ul class="nav nav-tabs nav-justified " style="margin-top: 30px;">
+    <li role="presentation" id="host-power-apply"><a href="{% url 'Opsys:HostPowerApply' %}">申请主机权限</a></li>
+    <li role="presentation" id="host-power-apply-verify-status"><a href="{% url 'Opsys:HostPowerApplyVerifyStatus' %}">审批状态</a></li>
+    {% if role_name == 'admin' %}
+        <li role="presentation" id="host-power-apply-verify" ><a href="{% url 'Opsys:HostPowerApplyVerify' %}">权限审批</a></li>
+    {% endif %}
+  </ul>

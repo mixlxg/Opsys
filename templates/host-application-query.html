@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <style>
+   table a:link{
+      text-decoration: none;
+      font-size: 18px;
+    }
+   .tab-top{
+      margin-top: 50px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+    {% include 'host-application-query-top.html' %}
+    <div>
+    <table class="table table-bordered table-hover table-condensed tab-top text-center" id="app-host-power-tab">
+        <thead class="bg-info">
+            <tr>
+                <td>用户名</td>
+                <td>类型</td>
+                <td>服务名称</td>
+                <td>ip地址</td>
+                <td>权限剩余时间</td>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+    {% include 'modal-md-close.html' %}
+{% endblock %}
+{% block script %}
+  <script src="{% static 'js/nomal-splite-page.js' %}"></script>
+  <script>
+    $("#hostpowerMange").collapse('show');
+    $("#host-power-query").addClass("active");
+    // 申明一个用于存放存放用于已经申请到的权限变量
+    var power_data;
+    var tmp_arry = [];
+    // 获取当前用户拥有的权限
+    $.ajax({
+        url:"{% url 'Opsys:HostPowerApi' %}",
+        type: "GET",
+        dataType: "json",
+        data: {"flag": "one"},
+        async: false,
+        success: function (args) {
+            if(args["result"]){
+                power_data = args["data"];
+            }else {
+                var url="{% url 'Opsys:error' %}"+ '?error_mess='+args.error_mess.toLocaleString();
+                $(location).prop('href',url);
+            }
+        }
+    });
+    // 格式化方便后面分页使用
+    $.each(power_data,function (username,username_value_m) {
+        var tmp_dict={'username':username};
+        $.each(username_value_m,function (project_name,project_name_value_m) {
+            tmp_dict['project_name']=project_name;
+            $.each(project_name_value_m, function (service_name,service_name_value_m) {
+                tmp_dict['service_name']=service_name;
+                if(service_name_value_m['long_time'] == undefined){
+                    tmp_dict['long_time'] = '不限时';
+                }else {
+                    tmp_dict['long_time'] = service_name_value_m['long_time'];
+                }
+                tmp_arry.push(JSON.parse(JSON.stringify(tmp_dict)));
+            })
+        });
+    });
+
+    // 创建用于格式化table tr的行数
+    function create_table_tr(mes) {
+        var tr_mess = '<tr><td>'+mes['username']+'</td><td>' + mes['project_name'] + '</td><td>' + mes['service_name']+'</td><td><button type="button" class="btn btn-info btn-xs">查看具体ip</button></td><td>'+mes['long_time']+'</td><tr>'
+        return tr_mess
+    }
+    // 创建分页
+    normalcreatetbody("app-host-power-tab",tmp_arry,20,create_table_tr);
+    // 绑定查看ip地址的事件
+    $('#app-host-power-tab').on('click','tbody .btn-xs',function () {
+        var username = $(this).parent().siblings().eq(0).text().trim();
+        var project_name = $(this).parent().siblings().eq(1).text().trim();
+        var service_name = $(this).parent().siblings().eq(2).text().trim();
+        var ip_arry = power_data[username][project_name][service_name]['ip'];
+        $('#modal-md-close .modal-title').text("已授权IP地址：");
+        $('#modal-md-close tbody').empty();
+        $.each(ip_arry,function (i,ip) {
+           $('#modal-md-close tbody').append(
+               '<tr><td>'+ (i+1) +'</td><td>' + ip +'</td></tr>'
+           );
+        });
+        $("#modal-md-close").modal('show');
+    });
+  </script>
+{% endblock %}

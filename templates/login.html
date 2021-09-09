@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>联通运维系统</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'pic/titleicon/favicon.ico' %}"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'plugin/bootstrap/css/bootstrap.css' %}">
+    <style>
+        body{
+            background: ghostwhite;
+        }
+        .outer{
+            position: absolute;
+            width: 500px;
+            height: 300px;
+            border: #2aabd2 solid 1px;
+            background: #afd9ee;
+            left: 50%;
+            top: 50%;
+            transform: translate(-250px,-150px);
+            border-radius: 10px;
+        }
+        .login-title{
+            text-align: center;
+            font-weight: bolder;
+            font-family: 华文仿宋;
+            letter-spacing: 30px;
+        }
+        .sure-login{
+            width: 200px;
+            letter-spacing: 30px;
+            font-family: 华文仿宋;
+            font-size: 20px;
+            text-align: center;
+            margin-left: 50%;
+            transform: translateX(-60px);
+            margin-top: 20px;
+        }
+        #errormess{
+            display: none;
+            margin-top: -10px;
+            text-align: center;
+            color: red;
+            font-size: small;
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+    <div class="page-header">
+        <h3 class="login-title">登录</h3>
+    </div>
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label for="user" class="col-sm-3 control-label">用户名</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="user" name="username" placeholder="请输入用户名">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password" class="col-sm-3 control-label">密码</label>
+        <div class="col-sm-8" >
+          <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码">
+        </div>
+      </div>
+      <div id="errormess"></div>
+      <div class="form-group">
+        <div class="col-sm-10">
+          <button type="button" class="btn btn-primary active sure-login">登录</button>
+        </div>
+      </div>
+    </form>
+</div>
+<script src="{% static 'plugin/jquery.js' %}" type="application/javascript"></script>
+<script>
+    $("form button.btn").click(function () {
+        $.ajax({
+            url:window.location.href,
+            data:$("form").serialize(),
+            type:"POST",
+            success:function (args) {
+                var res=JSON.parse(args);
+                if (res["result"]){
+                    window.location.replace(res["next"]);
+                }else {
+                    $("#errormess").text(res["mess"]);
+                    $("#errormess").css("display","block");
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>
